@@ -7,5 +7,6 @@ import { ManageServicesRepository } from './manager-service.repo';
 @Module({
   controllers: [ManageServicesController],
   providers: [ManageServicesService, ManageServicesRepository],
+  exports: [ManageServicesService],
 })
 export class ManageServicesModule { }
