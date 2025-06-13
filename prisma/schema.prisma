@@ -1,7 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
+  // output        = "../../node_modules/.prisma/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  // output = "../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -211,19 +211,20 @@ model CustomerProfile {
 }
 
 model Staff {
-  id                Int             @id @default(autoincrement())
-  userId            Int             @unique
+  id                Int                @id @default(autoincrement())
+  userId            Int                @unique
   providerId        Int
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  booking           Booking?        @relation("StaffBooking")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  isActive          Boolean            @default(true)
+  inspectedBookings Booking[]          @relation("BookingInspectedBy")
+  booking           Booking?           @relation("StaffBooking")
+  inspectionReports InspectionReport[]
   reviews           Review[]
-  serviceProvider   ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  inspectedBookings Booking[]       @relation("BookingInspectedBy")
+  serviceProvider   ServiceProvider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   staffCategories   StaffCategory[]
   workLogs          WorkLog[]
-    inspectionReports InspectionReport[]
 }
 
 model StaffCategory {
@@ -309,53 +310,51 @@ model Service {
   description        String               @default("test description") @db.VarChar(100)
   bookings           Booking[]
   bookingServices    BookingServiceItem[]
+  proposedInBookings ProposedService[]
   recurringBookings  RecurringBooking[]
   reviews            Review[]
-  proposedInBookings ProposedService[]
   createdBy          User?                @relation("ServiceCreatedBy", fields: [createdById], references: [id])
   deletedBy          User?                @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
   provider           ServiceProvider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
   updatedBy          User?                @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
-  translations       ServiceTranslation[]
   serviceItems       ServicePackageItem[]
+  translations       ServiceTranslation[]
   categories         Category[]           @relation("ServiceCategories")
 
   @@index([deletedAt])
 }
 
 model Booking {
-  id          Int           @id @default(autoincrement())
-  customerId  Int
-  serviceId   Int
-  providerId  Int
-  status      BookingStatus
-  date        DateTime
-  note        String?
-  createdById Int?
-  updatedById Int?
-  deletedById Int?
-  deletedAt   DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  inspectionStatus    InspectionStatus        @default(NOT_YET)
+  id                  Int                     @id @default(autoincrement())
+  customerId          Int
+  serviceId           Int
+  providerId          Int
+  status              BookingStatus
+  date                DateTime
+  note                String?
+  createdById         Int?
+  updatedById         Int?
+  deletedById         Int?
+  deletedAt           DateTime?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
   confirmedByCustomer Boolean                 @default(false)
-  inspectionNote      String?
   inspectedAt         DateTime?
   inspectedById       Int?
+  inspectionNote      String?
+  inspectionStatus    InspectionStatus        @default(NOT_YET)
+  staffId             Int?                    @unique
   customer            CustomerProfile         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  inspectedBy         Staff?                  @relation("BookingInspectedBy", fields: [inspectedById], references: [id])
   provider            ServiceProvider         @relation(fields: [providerId], references: [id], onDelete: Cascade)
   service             Service                 @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  staff               Staff?                  @relation("StaffBooking", fields: [staffId], references: [id], onDelete: Cascade)
   bookingServices     BookingServiceItem[]
   bookingPackages     BookingServicePackage[]
-
-  transaction Transaction?
-  workLogs    WorkLog[]
-  inspectionReport InspectionReport? 
-  staffId          Int?              @unique
-  staff            Staff?            @relation("StaffBooking", fields: [staffId], references: [id], onDelete: Cascade)
-  inspectedBy      Staff?            @relation("BookingInspectedBy", fields: [inspectedById], references: [id])
-  proposedServices ProposedService[]
+  inspectionReport    InspectionReport?
+  proposedServices    ProposedService[]
+  transaction         Transaction?
+  workLogs            WorkLog[]
 }
 
 model ProposedService {
@@ -363,25 +362,23 @@ model ProposedService {
   bookingId Int
   serviceId Int
   quantity  Int      @default(1)
-  price     Float // Giá sau kiểm tra (có thể khác basePrice)
+  price     Float
   notes     String?
   createdAt DateTime @default(now())
-
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 }
 
 model InspectionReport {
   id            Int      @id @default(autoincrement())
-  bookingId     Int      @unique                  // Mỗi booking chỉ có 1 report
-  staffId       Int                                // Nhân viên kiểm tra
-  estimatedTime Int?                               // Thời gian thi công ước lượng (phút)
-  note          String?                            // Ghi chú hiện trạng
-  images        String[]                           // Danh sách ảnh (URL)
-  createdAt     DateTime  @default(now())
-
-  booking       Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  staff         Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  bookingId     Int      @unique
+  staffId       Int
+  estimatedTime Int?
+  note          String?
+  images        String[]
+  createdAt     DateTime @default(now())
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  staff         Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
@@ -450,8 +447,7 @@ model ServicePackage {
   recommendations PackageRecommendation[]
   createdBy       User?                   @relation("PackageCreatedBy", fields: [createdById], references: [id])
   updatedBy       User?                   @relation("PackageUpdatedBy", fields: [updatedById], references: [id])
-
-  serviceItems ServicePackageItem[]
+  serviceItems    ServicePackageItem[]
 
   @@index([deletedAt])
 }
@@ -459,12 +455,11 @@ model ServicePackage {
 model ServicePackageItem {
   packageId Int
   serviceId Int
-  quantity  Int     @default(1)
+  quantity  Int            @default(1)
   discount  Float?
   note      String?
-
-  package ServicePackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  service Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  package   ServicePackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  service   Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@id([packageId, serviceId])
 }

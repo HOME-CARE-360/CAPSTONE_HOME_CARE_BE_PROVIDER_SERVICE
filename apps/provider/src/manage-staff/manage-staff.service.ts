@@ -4,7 +4,7 @@ import { EmailAlreadyExistsException } from 'libs/common/src/errors/share-user.e
 import { SharedCategoryRepository } from 'libs/common/src/repositories/shared-category.repo';
 import { ShareStaffRepository } from 'libs/common/src/repositories/shared-staff.repo';
 import { SharedUserRepository } from 'libs/common/src/repositories/shared-user.repo';
-import { CreateStaffBodyType } from 'libs/common/src/request-response-type/provider/manage-staff/manage-staff.model';
+import { CreateStaffBodyType, GetStaffsQueryType } from 'libs/common/src/request-response-type/provider/manage-staff/manage-staff.model';
 
 
 
@@ -24,5 +24,8 @@ export class ManageStaffService {
         }
         return await this.sharedStaffRepository.createStaff(providerID, body)
 
+    }
+    async listStaff(query: GetStaffsQueryType, providerID: number) {
+        return await this.sharedStaffRepository.listStaff(query, providerID)
     }
 }
