@@ -8,7 +8,7 @@ import { ManageStaffService } from "./manage-staff.service";
 @Controller('manage-staffs')
 export class ManageStaffController {
   constructor(private readonly manageStaffService: ManageStaffService) { }
-  @MessagePattern('create-staff')
+  @MessagePattern({ cmd: 'create-staff' })
   // @Post("create-staff")
   @ZodSerializerDto(MessageResDTO)
   async createStaff(@Payload() { body, providerID }: { body: CreateStaffBodyType, providerID: number }) {
