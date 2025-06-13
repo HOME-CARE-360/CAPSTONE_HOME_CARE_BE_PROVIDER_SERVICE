@@ -59,8 +59,10 @@ export class ShareStaffRepository {
         const skip = (page - 1) * limit
         const take = limit
         const where: Prisma.StaffWhereInput = {
-            isActive,
             providerId: providerID
+        }
+        if (isActive) {
+            where.isActive = isActive
         }
         if (name) {
             where.user!.name = {
@@ -84,6 +86,7 @@ export class ShareStaffRepository {
             createdAt: orderBy,
 
         }
+        console.log(where);
 
         const [totalItems, data] = await Promise.all([
             this.prismaService.staff.count({
