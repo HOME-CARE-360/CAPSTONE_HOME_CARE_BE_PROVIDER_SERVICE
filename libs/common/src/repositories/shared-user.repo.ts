@@ -82,4 +82,65 @@ export class SharedUserRepository {
 
         })
     }
+
+    async createUser(
+        user: Pick<UserType, 'email' | 'name' | 'password' | 'phone' | "roles">,
+    ): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
+
+
+        const userRaw = await this.prismaService.user.create({
+            data: {
+                email: user.email,
+                name: user.name,
+                password: user.password,
+                phone: user.phone,
+                roles: {
+                    connect: user.roles.map(roleId => ({ id: roleId.id }))
+                }
+            },
+            omit: {
+                password: true,
+                totpSecret: true
+            },
+            include: {
+                roles: true,
+
+            }
+        })
+        await this.prismaService.customerProfile.create({
+            data: {
+                userId: userRaw.id
+            }
+        })
+        return userRaw
+    }
+
+    async createUserIncludeRole(
+        user: Pick<UserType, 'email' | 'name' | 'password' | 'phone' | 'roles'>,
+    ): Promise<UserType & { roles: Pick<RoleType, "id" | "name">[] } & { serviceProvider: { id: number } | null } & { staff: { providerId: number } | null }> {
+        return await this.prismaService.user.create({
+            data: {
+                email: user.email,
+                name: user.name,
+                password: user.password,
+                phone: user.phone,
+                roles: {
+                    connect: user.roles.map(roleId => ({ id: roleId.id }))
+                },
+            },
+            include: {
+                roles: true,
+                serviceProvider: {
+                    select: {
+                        id: true
+                    }
+                },
+                staff: {
+                    select: {
+                        providerId: true
+                    }
+                }
+            },
+        })
+    }
 }   
