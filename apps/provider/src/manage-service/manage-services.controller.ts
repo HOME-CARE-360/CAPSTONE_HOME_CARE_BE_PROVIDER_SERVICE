@@ -16,7 +16,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 @UseGuards(VerifiedProviderGuard)
 export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
-  @MessagePattern("/create-service")
+  @MessagePattern({ cmd: "/create-service" })
   @ZodSerializerDto(CreateServicesBodyDTO)
   async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
     await this.manageServicesService.createService(body, userID, providerId)
@@ -24,14 +24,14 @@ export class ManageServicesController {
       message: "Create service successfully"
     }
   }
-  @MessagePattern("/list-service")
+  @MessagePattern({ cmd: "/list-service" })
   @ZodSerializerDto(GetServicesForProviderResDTO)
   list(@Payload() { query, providerID }: { query: GetServicesForProviderQueryDTO, providerID: number }) {
     return this.manageServicesService.getListService({
       ...query, createdById: providerID
     })
   }
-  @MessagePattern("/update-service")
+  @MessagePattern({ cmd: "/update-service" })
   @ZodSerializerDto(MessageResDTO)
   async updateService(@Payload() { body, user }: { body: UpdateServicesBodyDTO, user: AccessTokenPayload }) {
     const data = await this.manageServicesService.updateService(body, user.userId, user.providerId as number, user.roles)
@@ -39,7 +39,7 @@ export class ManageServicesController {
       message: `Update service ${data.name} with id:${data.id} successfully`
     }
   }
-  @MessagePattern("/delete-service")
+  @MessagePattern({ cmd: "/delete-service" })
   @ZodSerializerDto(UpdateServicesBodyDTO)
   async deleteService(@Payload() { serviceID, user }: { serviceID: DeleteServicesParamDTO, user: AccessTokenPayload }) {
     const data = await this.manageServicesService.deleteService(serviceID.serviceId, user.userId, user.providerId as number, user.roles)
@@ -47,7 +47,7 @@ export class ManageServicesController {
       message: `Delete service ${data.name} with id:${data.id} successfully`
     }
   }
-  @MessagePattern("/detail")
+  @MessagePattern({ cmd: "/detail" })
   @ZodSerializerDto(GetServiceResDTO)
   async getDetailService(@Payload() { serviceID, user }: { serviceID: DeleteServicesParamDTO, user: AccessTokenPayload }) {
     const data = await this.manageServicesService.getServiceDetail(serviceID.serviceId, user.providerId as number, user.roles)
