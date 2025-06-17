@@ -18,7 +18,7 @@ export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
   @MessagePattern("/create-service")
   @ZodSerializerDto(CreateServicesBodyDTO)
-  async createService(@Payload() body: CreateServicesBodyDTO, userID: number, providerId: number) {
+  async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
     await this.manageServicesService.createService(body, userID, providerId)
     return {
       message: "Create service successfully"
