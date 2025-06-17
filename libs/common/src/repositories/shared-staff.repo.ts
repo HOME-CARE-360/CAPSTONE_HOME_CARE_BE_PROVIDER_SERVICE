@@ -5,9 +5,10 @@ import { SharedUserRepository } from "./shared-user.repo";
 
 import { SharedRoleRepository } from "./shared-role.repo";
 import { Prisma } from "@prisma/client";
+import { HashingService } from "../services/hashing.service";
 @Injectable()
 export class ShareStaffRepository {
-    constructor(private readonly prismaService: PrismaService, private readonly shareUser: SharedUserRepository, private readonly rolesService: SharedRoleRepository) { }
+    constructor(private readonly prismaService: PrismaService, private readonly shareUser: SharedUserRepository, private readonly rolesService: SharedRoleRepository, private readonly hashingService: HashingService) { }
     async findUniqueStaffAndBelongToProvider(id: number, providerId: number) {
         return await this.prismaService.staff.findUnique({
             where: {
@@ -19,10 +20,11 @@ export class ShareStaffRepository {
     async createStaff(providerID: number, body: Omit<CreateStaffBodyType, "confirmPassword">) {
         const { categoryIds, ...staff } = body
         const staffRole = await this.rolesService.getStaffRoleId()
+        const hashedPassword = await this.hashingService.hash(body.password)
+
         const user = await this.shareUser.createUserIncludeRole({
-            ...staff, roles: [staffRole]
+            ...staff, roles: [staffRole], password: hashedPassword
         })
-        console.log("âh");
 
         await this.prismaService.$transaction(async (tx) => {
 
