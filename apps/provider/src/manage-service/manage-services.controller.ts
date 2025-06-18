@@ -16,9 +16,11 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 @UseGuards(VerifiedProviderGuard)
 export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
-  @MessagePattern({ cmd: "/create-service" })
+  @MessagePattern({ cmd: "create-service" })
   @ZodSerializerDto(CreateServicesBodyDTO)
   async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
+    console.log("create service");
+
     await this.manageServicesService.createService(body, userID, providerId)
     return {
       message: "Create service successfully"
