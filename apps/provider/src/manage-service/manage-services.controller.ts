@@ -30,7 +30,7 @@ export class ManageServicesController {
   @ZodSerializerDto(GetServicesForProviderResDTO)
   list(@Payload() { query, providerID }: { query: GetServicesForProviderQueryDTO, providerID: number }) {
     return this.manageServicesService.getListService({
-      ...query, createdById: providerID
+      ...query, providerId: providerID
     })
   }
   @MessagePattern({ cmd: "/update-service" })

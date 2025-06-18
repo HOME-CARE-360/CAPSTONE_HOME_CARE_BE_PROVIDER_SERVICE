@@ -37,10 +37,10 @@ export class ManageServicesRepository {
         categories,
         minPrice,
         maxPrice,
-        createdById,
         isPublic,
         orderBy,
         sortBy,
+        providerId
     }: {
         limit: number
         page: number
@@ -48,16 +48,15 @@ export class ManageServicesRepository {
         categories?: number[]
         minPrice?: number
         maxPrice?: number
-        createdById?: number
         isPublic?: boolean
         orderBy: OrderByType
-        sortBy: SortByType
+        sortBy: SortByType, providerId: number
     }): Promise<GetServicesForProviderResType> {
         const skip = (page - 1) * limit
         const take = limit
         let where: Prisma.ServiceWhereInput = {
             deletedAt: null,
-            createdById: createdById
+            providerId
         }
         if (isPublic === true) {
             where.publishedAt = {

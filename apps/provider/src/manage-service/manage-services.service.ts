@@ -12,8 +12,7 @@ export class ManageServicesService {
     async createService(data: CreateServiceType, userId: number, providerId: number) {
         await this.servicesRepository.createService(data, userId, providerId)
     }
-    async getListService(data: GetServicesForProviderQueryType) {
-        console.log(data);
+    async getListService(data: GetServicesForProviderQueryType & { providerId: number }) {
         return await this.servicesRepository.listForProvider(data)
 
 
