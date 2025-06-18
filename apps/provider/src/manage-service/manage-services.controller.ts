@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 import { ZodSerializerDto } from 'nestjs-zod';
 
@@ -19,6 +19,7 @@ export class ManageServicesController {
   @ZodSerializerDto(CreateServicesBodyDTO)
   async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
     console.log("create service");
+    console.log(body, providerId, userID);
 
     await this.manageServicesService.createService(body, userID, providerId)
     return {
