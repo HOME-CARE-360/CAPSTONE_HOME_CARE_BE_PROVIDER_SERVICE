@@ -1,10 +1,9 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 import { ZodSerializerDto } from 'nestjs-zod';
 
 
 
-import { VerifiedProviderGuard } from 'libs/common/src/guards/verified-provider.guard';
 import { CreateServicesBodyDTO, DeleteServicesParamDTO, GetServiceResDTO, GetServicesForProviderQueryDTO, GetServicesForProviderResDTO, UpdateServicesBodyDTO } from 'libs/common/src/request-response-type/service/services.dto';
 import { AccessTokenPayload } from 'libs/common/src/types/jwt.type';
 import { MessageResDTO } from 'libs/common/src/dtos/response.dto';
@@ -13,7 +12,6 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 
 
 @Controller('manage-services')
-@UseGuards(VerifiedProviderGuard)
 export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
   @MessagePattern({ cmd: "create-service" })
