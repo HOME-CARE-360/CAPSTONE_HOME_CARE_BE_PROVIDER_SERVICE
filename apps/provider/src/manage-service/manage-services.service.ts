@@ -13,7 +13,10 @@ export class ManageServicesService {
         await this.servicesRepository.createService(data, userId, providerId)
     }
     async getListService(data: GetServicesForProviderQueryType) {
+        console.log(data);
         return await this.servicesRepository.listForProvider(data)
+
+
     }
     async updateService(data: UpdateServiceBodyType, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(data.id, providerId, roles)

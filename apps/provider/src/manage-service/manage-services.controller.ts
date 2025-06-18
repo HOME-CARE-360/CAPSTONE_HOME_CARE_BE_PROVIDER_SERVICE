@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Get } from '@nestjs/common';
 
 import { ZodSerializerDto } from 'nestjs-zod';
 
@@ -15,6 +15,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
   @MessagePattern({ cmd: "create-service" })
+
   @ZodSerializerDto(CreateServicesBodyDTO)
   async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
     console.log("create service");

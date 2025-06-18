@@ -56,7 +56,6 @@ export class ManageServicesRepository {
         const skip = (page - 1) * limit
         const take = limit
         let where: Prisma.ServiceWhereInput = {
-
             deletedAt: null,
             createdById: createdById
         }
