@@ -9,12 +9,12 @@ export class ManageBookingsController {
   constructor(private readonly manageBookingService: ManageBookingsService) { }
   @Get("get-request-service")
   @MessagePattern({ cmd: "get-request-service" })
-  async getRequestService(@Payload() { data, providerId }: { data: GetServicesRequestQueryType, providerId: number }) {
+  async getRequestService(@Payload() { data, providerID }: { data: GetServicesRequestQueryType, providerID: number }) {
     console.log("hi");
 
-    console.log({ ...data });
+    console.log(data, providerID);
 
-    return await this.manageBookingService.getListServiceRequest(data, providerId)
+    return await this.manageBookingService.getListServiceRequest(data, providerID)
   }
 
 
