@@ -102,9 +102,8 @@ export class ManageServicesRepository {
             }
         } else if (sortBy === SortBy.Discount) {
             caculatedOrderBy = {
-                bookings: {
-                    _count: orderBy,
-                },
+
+                virtualPrice: orderBy
             }
         }
         const [totalItems, data] = await Promise.all([

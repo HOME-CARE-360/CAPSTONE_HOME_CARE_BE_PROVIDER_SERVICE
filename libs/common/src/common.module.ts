@@ -16,8 +16,9 @@ import { S3Service } from './services/S3.service';
 import { ShareStaffRepository } from './repositories/shared-staff.repo';
 import { SharedCategoryRepository } from './repositories/shared-category.repo';
 import { AccessTokenGuard } from './guards/access-token.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
+import CustomZodValidationPipe from './pipes/custom-zod-validation.pipe';
 const sharedServices = [
   PrismaService,
   HashingService,
@@ -40,6 +41,11 @@ const sharedServices = [
 @Module({
   providers: [
     ...sharedServices,
+    {
+      provide: APP_PIPE,
+      useClass: CustomZodValidationPipe,
+
+    }
     // AccessTokenGuard,
     // {
     //   provide: APP_GUARD,
