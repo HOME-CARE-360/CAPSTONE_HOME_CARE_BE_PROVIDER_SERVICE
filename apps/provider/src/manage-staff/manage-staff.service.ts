@@ -5,12 +5,13 @@ import { SharedCategoryRepository } from 'libs/common/src/repositories/shared-ca
 import { ShareStaffRepository } from 'libs/common/src/repositories/shared-staff.repo';
 import { SharedUserRepository } from 'libs/common/src/repositories/shared-user.repo';
 import { CreateStaffBodyType, GetStaffsQueryType } from 'libs/common/src/request-response-type/provider/manage-staff/manage-staff.model';
+import { ManageStaffRepository } from './manage-staff.repo';
 
 
 
 @Injectable()
 export class ManageStaffService {
-    constructor(private readonly sharedStaffRepository: ShareStaffRepository, private readonly sharedCategoryRepository: SharedCategoryRepository, private readonly userRepository: SharedUserRepository) {
+    constructor(private readonly sharedStaffRepository: ShareStaffRepository, private readonly sharedCategoryRepository: SharedCategoryRepository, private readonly userRepository: SharedUserRepository, private readonly staffRepository: ManageStaffRepository) {
 
     }
     async createStaff(providerID: number, body: CreateStaffBodyType) {
@@ -27,5 +28,10 @@ export class ManageStaffService {
     }
     async listStaff(query: GetStaffsQueryType, providerID: number) {
         return await this.sharedStaffRepository.listStaff(query, providerID)
+    }
+    async getAvailableStaff(query: GetStaffsQueryType, providerId: number) {
+        console.log(query, providerId);
+
+        return await this.staffRepository.getAvailableStaff(query, providerId)
     }
 }
