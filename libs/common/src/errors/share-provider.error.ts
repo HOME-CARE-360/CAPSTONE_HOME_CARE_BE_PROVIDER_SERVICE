@@ -13,11 +13,12 @@ export const ProviderNotVerifiedException = new RpcException(
     new ForbiddenException("Your provider account is not verified")
 );
 export const ServiceRequestNotFoundException = new RpcException(
-    [
-        {
-            message: 'Error.ServiceRequestNotFoundOrNotBelongToProvider',
-            path: ['serviceRequestId'],
-        },
-    ]
+    new NotFoundException(
+        [
+            {
+                message: 'Error.ServiceRequestNotFoundOrNotBelongToProvider',
+                path: ['serviceRequestId'],
+            },
+        ])
 );
 
