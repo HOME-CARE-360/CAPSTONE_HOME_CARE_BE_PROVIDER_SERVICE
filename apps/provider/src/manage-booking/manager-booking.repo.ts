@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
-import { Prisma, RequestStatus } from "@prisma/client"
+import { BookingStatus, Prisma, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
+import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
 
@@ -77,5 +78,21 @@ export class ManageBookingsRepository {
             limit: limit,
             totalPages: Math.ceil(totalItems / limit),
         }
+    }
+    async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType, providerId: number) {
+        await Promise.all([this.prismaService.serviceRequest.update({
+            where: {
+                id: body.serviceRequestId
+            },
+            data: {
+                status: RequestStatus.IN_PROGRESS
+            }
+        }), this.prismaService.booking.create({
+            data: {
+                ...body,
+                providerId,
+                status: BookingStatus.PENDING
+            }
+        })])
     }
 }

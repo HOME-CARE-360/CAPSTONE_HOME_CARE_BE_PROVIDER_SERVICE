@@ -12,6 +12,14 @@ export class SharedProviderRepository {
             }
         })
     }
+    async findUniqueServiceRequestBelongToProvider({ providerId, serviceRequestId }: { providerId: number, serviceRequestId: number }) {
+        return await this.prismaService.serviceRequest.findFirst({
+            where: {
+                id: serviceRequestId,
+                providerId
+            }
+        })
+    }
     async update(body: ServiceProviderType): Promise<ServiceProviderType | null> {
         return await this.prismaService.serviceProvider.update({ where: { id: body.id }, data: { ...body } })
     }

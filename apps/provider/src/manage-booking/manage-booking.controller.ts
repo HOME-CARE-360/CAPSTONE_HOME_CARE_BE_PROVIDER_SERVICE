@@ -1,7 +1,7 @@
-import { Controller, Get, } from "@nestjs/common";
+import { Body, Controller, Get, Post, } from "@nestjs/common";
 import { ManageBookingsService } from "./manage-booking.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
-import { GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
+import { AssignStaffToBookingBodySchemaType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
 
 
 @Controller('manage-bookings')
@@ -15,6 +15,11 @@ export class ManageBookingsController {
     console.log(data, providerID);
 
     return await this.manageBookingService.getListServiceRequest(data, providerID)
+  }
+  @MessagePattern({ cmd: "assign-staff-to-booking" })
+  @Post("assign-staff-to-booking")
+  async assignStaffToBooking(@Payload() { data, providerID }: { data: AssignStaffToBookingBodySchemaType, providerID: number }) {
+    return await this.manageBookingService.assignStaffToBooking(data, providerID)
   }
 
 
