@@ -7,8 +7,8 @@ import { UnauthorizedAccessException } from "libs/common/src/errors/share-auth.e
 import { ServiceProviderNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { ServiceNotFoundException } from "libs/common/src/errors/share-service.error"
 import { RoleType } from "libs/common/src/models/shared-role.model"
-import { ServiceFullInformationType, ServiceType } from "libs/common/src/models/shared-services.model"
-import { GetServicesForProviderResType, UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
+import { ServiceType } from "libs/common/src/models/shared-services.model"
+import { UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
 
@@ -16,19 +16,29 @@ import { PrismaService } from "libs/common/src/services/prisma.service"
 @Injectable()
 export class ManageServicesRepository {
     constructor(private readonly prismaService: PrismaService) { }
-    async createService(service: ServiceType & { categories: number[] }, userId: number, providerId: number) {
+    async createServiceItem() {
 
-        await this.prismaService.service.create({
+    }
+    async createService(service: ServiceType & { categoryId: number } & { serviceItemsId?: number[] }, userId: number, providerId: number) {
+
+        const createdService = await this.prismaService.service.create({
             data: {
                 ...service,
                 providerId: providerId,
                 createdById: userId,
                 updatedById: userId,
-                categories: {
-                    connect: service.categories.map((id) => ({ id }))
-                }
+
             }
         })
+        if (service.serviceItemsId && service.serviceItemsId.length > 0) {
+            await this.prismaService.service_ServiceItems.createMany({
+                data: service.serviceItemsId.map((itemId) => ({
+                    serviceId: createdService.id,
+                    serviceItemId: itemId,
+                })),
+            });
+        }
+        return
     }
     async listForProvider({
         limit,
@@ -51,7 +61,7 @@ export class ManageServicesRepository {
         isPublic?: boolean
         orderBy: OrderByType
         sortBy: SortByType, providerId: number
-    }): Promise<GetServicesForProviderResType> {
+    }) {
         const skip = (page - 1) * limit
         const take = limit
         let where: Prisma.ServiceWhereInput = {
@@ -77,12 +87,8 @@ export class ManageServicesRepository {
         }
 
         if (categories && categories.length > 0) {
-            where.categories = {
-                some: {
-                    id: {
-                        in: categories,
-                    },
-                },
+            where.categoryId = {
+                in: categories
             }
         }
         if (minPrice !== undefined || maxPrice !== undefined) {
@@ -117,9 +123,15 @@ export class ManageServicesRepository {
                     // translations: {
                     //     where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
                     // },
-                    categories: {
+                    Category: {
                         select: {
+                            id: true,
                             name: true
+                        }
+                    }, Service_ServiceItems: {
+                        include: {
+                            ServiceItem: true
+
                         }
                     }
                 },
@@ -128,8 +140,15 @@ export class ManageServicesRepository {
                 take,
             }),
         ])
+        const newData = data.map(({ Category, ...rest }) => ({
+            ...rest, Category: {
+                ...Category,
+                items: rest.Service_ServiceItems.map(({ ServiceItem }) => ({ ...ServiceItem }))
+            }
+        }))
+
         return {
-            data,
+            data: newData,
             totalItems,
             page: page,
             limit: limit,
@@ -138,20 +157,34 @@ export class ManageServicesRepository {
     }
 
 
-    async updateServices(data: UpdateServiceBodyType, userId: number): Promise<ServiceFullInformationType> {
-        const { categories, id, ...rest } = data
-        return await this.prismaService.service.update({
-            where: {
-                id: id
-            },
-            data: {
-                ...rest,
-                updatedById: userId,
-                categories: {
-                    connect: categories.map((item) => ({ id: item }))
-                }
+    async updateServices(data: UpdateServiceBodyType, userId: number) {
+        const { categoryId, id, serviceItemsId, ...rest } = data;
+
+        return await this.prismaService.$transaction(async (tx) => {
+            const updatedService = await tx.service.update({
+                where: { id },
+                data: {
+                    ...rest,
+                    updatedById: userId,
+                    categoryId,
+                },
+            });
+
+            await tx.service_ServiceItems.deleteMany({
+                where: { serviceId: id },
+            });
+
+            if (serviceItemsId && serviceItemsId.length > 0) {
+                await tx.service_ServiceItems.createMany({
+                    data: serviceItemsId.map((itemId) => ({
+                        serviceId: id,
+                        serviceItemId: itemId,
+                    })),
+                });
             }
-        })
+
+            return updatedService;
+        });
     }
     async serviceBelongProvider(serviceId: number, providerId: number, roleName: Pick<RoleType, "id" | "name">[]) {
         const service = await this.prismaService.service.findUnique({
@@ -194,7 +227,12 @@ export class ManageServicesRepository {
                     images: true,
                     durationMinutes: true,
                     publishedAt: true,
-                    categories: {
+                    Service_ServiceItems: {
+                        select: {
+                            ServiceItem: true
+                        }
+                    },
+                    Category: {
                         select: {
                             logo: true,
                             name: true
@@ -206,7 +244,13 @@ export class ManageServicesRepository {
 
                 }
             })
-            return data as ServiceType
+            const { Category, ...rest } = data
+            const newData = {
+                ...rest, category: {
+                    ...Category
+                }, items: rest.Service_ServiceItems.map(({ ServiceItem }) => ({ ...ServiceItem }))
+            }
+            return newData as ServiceType
         } catch (error) {
             if (isNotFoundPrismaError(error)) {
                 throw ServiceNotFoundException

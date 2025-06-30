@@ -10,12 +10,12 @@ export const ServiceBodyPrototype = ServiceSchema.pick({
     basePrice: true,
     images: true,
     description: true,
-
+    serviceItemsId: true,
     name: true,
     virtualPrice: true,
     durationMinutes: true,
 }).extend({
-    categories: z.array(z.number()),
+    categoryId: z.number(),
 })
 export const CreateServiceBodySchema = ServiceBodyPrototype.strict().refine(data => data.virtualPrice < data.basePrice, {
     message: 'Virtual price must be less than base price',
@@ -51,13 +51,13 @@ export const GetServicesQuerySchema = z.object({
             return value
         }, z.array(z.coerce.number().int().positive()))
         .optional(),
-    categories: z
+    categoryId: z
         .preprocess((value) => {
             if (typeof value === 'string') {
                 return [Number(value)]
             }
             return value
-        }, z.array(z.coerce.number().int().positive()))
+        }, z.coerce.number().int().positive())
         .optional(),
     minPrice: z.coerce.number().positive().optional(),
     maxPrice: z.coerce.number().positive().optional(),

@@ -21,7 +21,7 @@ export const ServiceSchema = z.object({
         .int()
         .positive()
         .max(1440, 'Duration cannot exceed 24 hours'),
-
+    serviceItemsId: z.array(z.number()).optional(),
     providerId: z.number().int().nonnegative(),
 
     createdById: z.number().nullable(),
