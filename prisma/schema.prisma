@@ -1,5 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
+  // output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -205,7 +206,7 @@ model CustomerProfile {
   recurringBookings      RecurringBooking[]
   reviews                Review[]
   rewardPoints           RewardPoint[]
-  ServiceRequest         ServiceRequest[]
+  serviceRequests        ServiceRequest[]
 }
 
 model Staff {
@@ -250,10 +251,11 @@ model ServiceProvider {
   verifiedById        Int?
   bookings            Booking[]
   services            Service[]
+  serviceItems        ServiceItem[]
   user                User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
   verifiedBy          User?                        @relation("VerifiedProviders", fields: [verifiedById], references: [id])
   translationsService ServiceProviderTranslation[]
-  ServiceRequest      ServiceRequest[]
+  serviceRequests     ServiceRequest[]
   staff               Staff[]
 }
 
@@ -274,43 +276,71 @@ model Category {
   childrenCategories Category[]            @relation("ParentCategoryCategories")
   updatedBy          User?                 @relation("CategoryUpdatedBy", fields: [updatedById], references: [id])
   translations       CategoryTranslation[]
-  Service            Service[]
-  ServiceRequest     ServiceRequest[]
+  services           Service[]
+  serviceRequests    ServiceRequest[]
   staffCategories    StaffCategory[]
 
   @@index([deletedAt])
 }
 
 model Service {
-  id                   Int                    @id @default(autoincrement())
-  basePrice            Float
-  virtualPrice         Float
-  images               String[]
-  durationMinutes      Int
-  providerId           Int
-  createdById          Int?
-  updatedById          Int?
-  deletedById          Int?
-  deletedAt            DateTime?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  name                 String                 @default("test") @db.VarChar(100)
-  publishedAt          DateTime?              @default(now())
-  description          String                 @default("test description") @db.VarChar(100)
-  categoryId           Int
-  unit                 Unit                   @default(PER_JOB)
-  proposedInBookings   ProposedService[]
-  recurringBookings    RecurringBooking[]
-  reviews              Review[]
-  Category             Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdBy            User?                  @relation("ServiceCreatedBy", fields: [createdById], references: [id])
-  deletedBy            User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
-  provider             ServiceProvider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  updatedBy            User?                  @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
-  translations         ServiceTranslation[]
-  Service_ServiceItems Service_ServiceItems[]
+  id                 Int                    @id @default(autoincrement())
+  basePrice          Float
+  virtualPrice       Float
+  images             String[]
+  durationMinutes    Int
+  providerId         Int
+  createdById        Int?
+  updatedById        Int?
+  deletedById        Int?
+  deletedAt          DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  name               String                 @default("test") @db.VarChar(100)
+  publishedAt        DateTime?              @default(now())
+  description        String                 @default("test description") @db.VarChar(100)
+  categoryId         Int
+  unit               Unit                   @default(PER_JOB)
+  proposedInBookings ProposedService[]
+  recurringBookings  RecurringBooking[]
+  reviews            Review[]
+  category           Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdBy          User?                  @relation("ServiceCreatedBy", fields: [createdById], references: [id])
+  deletedBy          User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
+  provider           ServiceProvider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  updatedBy          User?                  @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
+  translations       ServiceTranslation[]
+  attachedItems      Service_ServiceItems[]
 
   @@index([deletedAt])
+}
+
+model Service_ServiceItems {
+  serviceId     Int
+  serviceItemId Int
+  service       Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceItem   ServiceItem @relation(fields: [serviceItemId], references: [id], onDelete: Cascade)
+
+  @@id([serviceId, serviceItemId])
+}
+
+model ServiceItem {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @db.VarChar(255)
+  unitPrice            Float
+  warrantyPeriod       Int?
+  createdAt            DateTime               @default(now())
+  deletedAt            DateTime?
+  updatedAt            DateTime               @updatedAt
+  brand                String?                @db.VarChar(255)
+  description          String?                @db.VarChar(1000)
+  isActive             Boolean                @default(true)
+  model                String?                @db.VarChar(255)
+  stockQuantity        Int                    @default(0)
+  unit                 Unit                   @default(PER_ITEM)
+  providerId           Int
+  provider             ServiceProvider        @relation(fields: [providerId], references: [id])
+  Service_ServiceItems Service_ServiceItems[]
 }
 
 model Booking {
@@ -325,12 +355,32 @@ model Booking {
   serviceRequestId Int?              @unique
   customer         CustomerProfile   @relation(fields: [customerId], references: [id], onDelete: Cascade)
   provider         ServiceProvider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  ServiceRequest   ServiceRequest?   @relation(fields: [serviceRequestId], references: [id])
+  serviceRequest   ServiceRequest?   @relation(fields: [serviceRequestId], references: [id])
   staff            Staff?            @relation("StaffBooking", fields: [staffId], references: [id], onDelete: Cascade)
   inspectionReport InspectionReport?
   proposedServices ProposedService[]
   transaction      Transaction?
   workLogs         WorkLog[]
+}
+
+model ServiceRequest {
+  id            Int             @id @default(autoincrement())
+  customerId    Int
+  providerId    Int
+  note          String?
+  preferredDate DateTime
+  status        RequestStatus   @default(PENDING)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  location      String          @db.VarChar(500)
+  phoneNumber   String
+  categoryId    Int
+  booking       Booking?
+  category      Category        @relation(fields: [categoryId], references: [id])
+  customer      CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider      ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([status])
 }
 
 model ProposedService {
@@ -466,67 +516,6 @@ model ChatMessage {
   customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model spatial_ref_sys {
-  srid      Int     @id
-  auth_name String? @db.VarChar(256)
-  auth_srid Int?
-  srtext    String? @db.VarChar(2048)
-  proj4text String? @db.VarChar(2048)
-}
-
-model ServiceItem {
-  id                   Int                    @id @default(autoincrement())
-  name                 String                 @db.VarChar(255)
-  unitPrice            Float
-  warrantyPeriod       Int?
-  createdAt            DateTime               @default(now())
-  deletedAt            DateTime?
-  updatedAt            DateTime               @updatedAt
-  brand                String?                @db.VarChar(255)
-  description          String?                @db.VarChar(1000)
-  isActive             Boolean                @default(true)
-  model                String?                @db.VarChar(255)
-  stockQuantity        Int                    @default(0)
-  unit                 Unit                   @default(PER_ITEM)
-  Service_ServiceItems Service_ServiceItems[]
-}
-
-model ServiceRequest {
-  id              Int             @id @default(autoincrement())
-  customerId      Int
-  providerId      Int
-  note            String?
-  preferredDate   DateTime
-  status          RequestStatus   @default(PENDING)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime
-  location        String          @db.VarChar(500)
-  phoneNumber     String
-  categoryId      Int
-  Booking         Booking?
-  Category        Category        @relation(fields: [categoryId], references: [id])
-  CustomerProfile CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  ServiceProvider ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-
-  @@index([status])
-}
-
-model Service_ServiceItems {
-  serviceId     Int
-  serviceItemId Int
-  Service       Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  ServiceItem   ServiceItem @relation(fields: [serviceItemId], references: [id], onDelete: Cascade)
-
-  @@id([serviceId, serviceItemId])
-}
-
-model chat_histories {
-  id         Int    @id @default(autoincrement())
-  session_id String @db.VarChar(255)
-  message    Json
-}
-
 enum UserStatus {
   ACTIVE
   INACTIVE
@@ -601,6 +590,13 @@ enum CompanyType {
   OTHER
 }
 
+enum Unit {
+  PER_HOUR
+  PER_ITEM
+  PER_SQUARE_METER
+  PER_JOB
+}
+
 enum VerificationStatus {
   PENDING
   VERIFIED
@@ -617,12 +613,4 @@ enum RequestStatus {
   PENDING
   IN_PROGRESS
   ESTIMATED
-  REJECTED
-}
-
-enum Unit {
-  PER_HOUR
-  PER_ITEM
-  PER_SQUARE_METER
-  PER_JOB
 }

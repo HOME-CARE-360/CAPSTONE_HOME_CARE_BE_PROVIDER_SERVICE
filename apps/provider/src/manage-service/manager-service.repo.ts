@@ -17,10 +17,12 @@ import { PrismaService } from "libs/common/src/services/prisma.service"
 @Injectable()
 export class ManageServicesRepository {
     constructor(private readonly prismaService: PrismaService) { }
-    async createServiceItem(data: CreateServiceItemType) {
+    async createServiceItem(data: CreateServiceItemType, providerID: number) {
         return await this.prismaService.serviceItem.create({
             data: {
-                ...data
+                ...data,
+
+                providerId: providerID
             }
         })
     }
@@ -134,16 +136,15 @@ export class ManageServicesRepository {
                     // translations: {
                     //     where: languageId === ALL_LANGUAGE_CODE ? { deletedAt: null } : { languageId, deletedAt: null },
                     // },
-                    Category: {
+                    category: {
                         select: {
                             id: true,
                             name: true,
 
                         }
-                    }, Service_ServiceItems: {
+                    }, attachedItems: {
                         include: {
-                            ServiceItem: true
-
+                            serviceItem: true
                         }
                     }
                 },
@@ -152,15 +153,10 @@ export class ManageServicesRepository {
                 take,
             }),
         ])
-        const newData = data.map(({ Category, ...rest }) => ({
-            ...rest, Category: {
-                ...Category,
-                items: rest.Service_ServiceItems.map(({ ServiceItem }) => ({ ...ServiceItem }))
-            }
-        }))
+
 
         return {
-            data: newData,
+            data,
             totalItems,
             page: page,
             limit: limit,
@@ -239,12 +235,12 @@ export class ManageServicesRepository {
                     images: true,
                     durationMinutes: true,
                     publishedAt: true,
-                    Service_ServiceItems: {
+                    attachedItems: {
                         select: {
-                            ServiceItem: true
+                            serviceItem: true
                         }
                     },
-                    Category: {
+                    category: {
                         select: {
                             logo: true,
                             name: true
@@ -256,13 +252,7 @@ export class ManageServicesRepository {
 
                 }
             })
-            const { Category, ...rest } = data
-            const newData = {
-                ...rest, category: {
-                    ...Category
-                }, items: rest.Service_ServiceItems.map(({ ServiceItem }) => ({ ...ServiceItem }))
-            }
-            return newData as ServiceType
+            return data
         } catch (error) {
             if (isNotFoundPrismaError(error)) {
                 throw ServiceNotFoundException

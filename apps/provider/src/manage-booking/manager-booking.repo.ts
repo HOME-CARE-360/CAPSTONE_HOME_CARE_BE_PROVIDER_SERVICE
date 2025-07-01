@@ -33,7 +33,8 @@ export class ManageBookingsRepository {
             orderBy: {
                 [sortBy]: orderBy
             }, include: {
-                Category: {
+
+                category: {
                     select: {
                         logo: true,
                         name: true,
@@ -41,7 +42,8 @@ export class ManageBookingsRepository {
                     },
 
                 },
-                CustomerProfile: {
+
+                customer: {
                     select: {
                         address: true,
                         gender: true,
@@ -62,7 +64,7 @@ export class ManageBookingsRepository {
         }), this.prismaService.serviceRequest.count({
             where,
         })])
-        const data = rawData.map(({ CustomerProfile: { user, ...restUser }, ...rest }) => {
+        const data = rawData.map(({ customer: { user, ...restUser }, ...rest }) => {
             return {
                 ...rest,
                 customer: {
