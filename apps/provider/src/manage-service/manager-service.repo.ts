@@ -30,6 +30,10 @@ export class ManageServicesRepository {
 
             }
         })
+        console.log(service.serviceItemsId);
+
+        console.log(createdService);
+
         if (service.serviceItemsId && service.serviceItemsId.length > 0) {
             await this.prismaService.service_ServiceItems.createMany({
                 data: service.serviceItemsId.map((itemId) => ({
