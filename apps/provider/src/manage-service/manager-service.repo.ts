@@ -25,10 +25,11 @@ export class ManageServicesRepository {
         })
     }
     async createService(service: ServiceType & { categoryId: number } & { serviceItemsId?: number[] }, userId: number, providerId: number) {
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { serviceItemsId, ...rest } = service
         const createdService = await this.prismaService.service.create({
             data: {
-                ...service,
+                ...rest,
                 providerId: providerId,
                 createdById: userId,
                 updatedById: userId,
@@ -136,7 +137,8 @@ export class ManageServicesRepository {
                     Category: {
                         select: {
                             id: true,
-                            name: true
+                            name: true,
+
                         }
                     }, Service_ServiceItems: {
                         include: {
