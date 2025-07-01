@@ -2,15 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { RoleType } from 'libs/common/src/models/shared-role.model';
 import { CreateServiceType, GetServicesForProviderQueryType, UpdateServiceBodyType } from 'libs/common/src/request-response-type/service/services.model';
 import { ManageServicesRepository } from './manager-service.repo';
+import { SharedServiceItemRepository } from 'libs/common/src/repositories/shared-service-item.repo';
+import { InvalidServiceItemsIdException } from 'libs/common/src/errors/share-service-item.error';
 
 
 @Injectable()
 export class ManageServicesService {
-    constructor(private readonly servicesRepository: ManageServicesRepository) {
+    constructor(private readonly servicesRepository: ManageServicesRepository, private readonly serviceItemRepository: SharedServiceItemRepository) {
 
     }
     async createService(data: CreateServiceType, userId: number, providerId: number) {
-        await this.servicesRepository.createService(data, userId, providerId)
+        if (data.serviceItemsId) {
+            const existingIds = (await this.serviceItemRepository.findUnique(data.serviceItemsId)).map((item) => item.id)
+            const missingIds = data.serviceItemsId.filter(
+                id => !existingIds.includes(id)
+            );
+            if (missingIds.length > 0) {
+                throw InvalidServiceItemsIdException(missingIds)
+            }
+
+        }
+        return await this.servicesRepository.createService(data, userId, providerId)
     }
     async getListService(data: GetServicesForProviderQueryType & { providerId: number }) {
         return await this.servicesRepository.listForProvider(data)
@@ -31,4 +43,5 @@ export class ManageServicesService {
         return data
 
     }
+    async createServiceItem() { }
 }

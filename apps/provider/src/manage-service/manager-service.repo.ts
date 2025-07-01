@@ -8,6 +8,7 @@ import { ServiceProviderNotFoundException } from "libs/common/src/errors/share-p
 import { ServiceNotFoundException } from "libs/common/src/errors/share-service.error"
 import { RoleType } from "libs/common/src/models/shared-role.model"
 import { ServiceType } from "libs/common/src/models/shared-services.model"
+import { CreateServiceItemType } from "libs/common/src/request-response-type/service-item/service-item.model"
 import { UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -16,8 +17,12 @@ import { PrismaService } from "libs/common/src/services/prisma.service"
 @Injectable()
 export class ManageServicesRepository {
     constructor(private readonly prismaService: PrismaService) { }
-    async createServiceItem() {
-
+    async createServiceItem(data: CreateServiceItemType) {
+        return await this.prismaService.serviceItem.create({
+            data: {
+                ...data
+            }
+        })
     }
     async createService(service: ServiceType & { categoryId: number } & { serviceItemsId?: number[] }, userId: number, providerId: number) {
 
@@ -27,6 +32,7 @@ export class ManageServicesRepository {
                 providerId: providerId,
                 createdById: userId,
                 updatedById: userId,
+
 
             }
         })

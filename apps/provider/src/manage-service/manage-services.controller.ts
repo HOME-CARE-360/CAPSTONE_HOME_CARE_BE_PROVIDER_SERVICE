@@ -20,7 +20,6 @@ export class ManageServicesController {
   async createService(@Payload() { body, providerId, userID }: { body: CreateServicesBodyDTO, userID: number, providerId: number }) {
     console.log("create service");
     console.log(body, providerId, userID);
-
     await this.manageServicesService.createService(body, userID, providerId)
     return {
       message: "Create service successfully"

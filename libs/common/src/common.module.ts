@@ -18,6 +18,7 @@ import { SharedCategoryRepository } from './repositories/shared-category.repo';
 
 import CustomZodValidationPipe from './pipes/custom-zod-validation.pipe';
 import { APP_PIPE } from '@nestjs/core';
+import { SharedServiceItemRepository } from './repositories/shared-service-item.repo';
 const sharedServices = [
   PrismaService,
   HashingService,
@@ -32,7 +33,8 @@ const sharedServices = [
   S3Service,
   ShareStaffRepository,
   SharedCategoryRepository,
-  SharedUserRepository
+  SharedUserRepository,
+  SharedServiceItemRepository
 
 ]
 
