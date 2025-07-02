@@ -45,6 +45,6 @@ export class ManageServicesService {
 
     }
     async createServiceItem(body: CreateServiceItemType, providerID: number) {
-        await this.servicesRepository.createServiceItem(body, providerID)
+        return await this.servicesRepository.createServiceItem(body, providerID)
     }
 }

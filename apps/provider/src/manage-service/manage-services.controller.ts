@@ -9,6 +9,7 @@ import { AccessTokenPayload } from 'libs/common/src/types/jwt.type';
 import { MessageResDTO } from 'libs/common/src/dtos/response.dto';
 import { ManageServicesService } from './manage-services.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { CreateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
 
 
 @Controller('manage-services')
@@ -23,6 +24,16 @@ export class ManageServicesController {
     await this.manageServicesService.createService(body, userID, providerId)
     return {
       message: "Create service successfully"
+    }
+  }
+  @MessagePattern({ cmd: "create-service-item" })
+
+  @ZodSerializerDto(CreateServicesBodyDTO)
+  async createServiceItem(@Payload() { body, providerId }: { body: CreateServiceItemType, providerId: number }) {
+    console.log("create service item");
+    await this.manageServicesService.createServiceItem(body, providerId)
+    return {
+      message: "Create service item successfully"
     }
   }
   @MessagePattern({ cmd: "/list-service" })
