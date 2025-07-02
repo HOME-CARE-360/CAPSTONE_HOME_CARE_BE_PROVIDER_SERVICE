@@ -4,7 +4,7 @@ import { CreateServiceType, GetServicesForProviderQueryType, UpdateServiceBodyTy
 import { ManageServicesRepository } from './manager-service.repo';
 import { SharedServiceItemRepository } from 'libs/common/src/repositories/shared-service-item.repo';
 import { InvalidServiceItemsIdException } from 'libs/common/src/errors/share-service-item.error';
-import { CreateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { CreateServiceItemType, GetServiceItemsQueryType } from 'libs/common/src/request-response-type/service-item/service-item.model';
 
 
 @Injectable()
@@ -27,6 +27,11 @@ export class ManageServicesService {
     }
     async getListService(data: GetServicesForProviderQueryType & { providerId: number }) {
         return await this.servicesRepository.listForProvider(data)
+
+
+    }
+    async getListServiceItem(data: GetServiceItemsQueryType & { providerId: number }) {
+        return await this.servicesRepository.getListServiceItem(data, data.providerId)
 
 
     }

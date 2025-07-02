@@ -8,7 +8,7 @@ import { ServiceProviderNotFoundException } from "libs/common/src/errors/share-p
 import { ServiceNotFoundException } from "libs/common/src/errors/share-service.error"
 import { RoleType } from "libs/common/src/models/shared-role.model"
 import { ServiceType } from "libs/common/src/models/shared-services.model"
-import { CreateServiceItemType } from "libs/common/src/request-response-type/service-item/service-item.model"
+import { CreateServiceItemType, GetServiceItemsQueryType } from "libs/common/src/request-response-type/service-item/service-item.model"
 import { UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -142,7 +142,8 @@ export class ManageServicesRepository {
                             name: true,
 
                         }
-                    }, attachedItems: {
+                    },
+                    attachedItems: {
                         include: {
                             serviceItem: true
                         }
@@ -164,7 +165,75 @@ export class ManageServicesRepository {
         }
     }
 
+    async getListServiceItem({
+        limit,
+        page,
+        name,
+        isActive,
+        minPrice,
+        maxPrice,
 
+        orderBy,
+        sortBy,
+    }: GetServiceItemsQueryType, providerId: number) {
+        const skip = (page - 1) * limit
+        const take = limit
+        const where: Prisma.ServiceItemWhereInput = {
+            deletedAt: null,
+            providerId
+        }
+        if (isActive === true) {
+            where.isActive = true
+        } else if (isActive === false) {
+            where.isActive = false
+        }
+        if (name) {
+            where.name = {
+                contains: name,
+                mode: 'insensitive',
+            }
+        }
+
+
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            where.unitPrice = {
+                gte: minPrice,
+                lte: maxPrice,
+            }
+        }
+
+        let caculatedOrderBy: Prisma.ServiceItemOrderByWithRelationInput | Prisma.ServiceItemOrderByWithRelationInput[] = {
+            createdAt: orderBy,
+
+        }
+        if (sortBy === SortBy.Price) {
+            caculatedOrderBy = {
+                unitPrice: orderBy,
+            }
+        }
+        const [totalItems, data] = await Promise.all([
+            this.prismaService.serviceItem.count({
+                where,
+            }),
+            this.prismaService.serviceItem.findMany({
+                where
+
+                ,
+                orderBy: caculatedOrderBy,
+                skip,
+                take,
+            }),
+        ])
+
+
+        return {
+            data,
+            totalItems,
+            page: page,
+            limit: limit,
+            totalPages: Math.ceil(totalItems / limit),
+        }
+    }
     async updateServices(data: UpdateServiceBodyType, userId: number) {
         const { categoryId, id, serviceItemsId, ...rest } = data;
 

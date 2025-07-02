@@ -65,6 +65,7 @@ export const GetServicesQuerySchema = z.object({
     orderBy: z.enum([OrderBy.Asc, OrderBy.Desc]).default(OrderBy.Desc),
     sortBy: z.enum([SortBy.CreatedAt, SortBy.Price, SortBy.Discount]).default(SortBy.CreatedAt),
 })
+
 export const GetServicesForProviderQuerySchema = GetServicesQuerySchema.omit({
     providerIds: true
 
