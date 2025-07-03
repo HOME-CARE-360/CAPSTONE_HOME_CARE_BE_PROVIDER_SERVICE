@@ -8,7 +8,7 @@ import { ServiceProviderNotFoundException } from "libs/common/src/errors/share-p
 import { ServiceNotFoundException } from "libs/common/src/errors/share-service.error"
 import { RoleType } from "libs/common/src/models/shared-role.model"
 import { ServiceType } from "libs/common/src/models/shared-services.model"
-import { CreateServiceItemType, GetServiceItemsQueryType } from "libs/common/src/request-response-type/service-item/service-item.model"
+import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from "libs/common/src/request-response-type/service-item/service-item.model"
 import { UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -263,6 +263,21 @@ export class ManageServicesRepository {
             return updatedService;
         });
     }
+    async updateServiceItem(data: UpdateServiceItemType) {
+        const { id, ...rest } = data
+
+        return await this.prismaService.serviceItem.update({
+            where: {
+                id
+            },
+            data: {
+                ...rest
+            }
+        })
+
+
+
+    }
     async serviceBelongProvider(serviceId: number, providerId: number, roleName: Pick<RoleType, "id" | "name">[]) {
         const service = await this.prismaService.service.findUnique({
             where: { id: serviceId },
@@ -274,6 +289,21 @@ export class ManageServicesRepository {
         }
 
         if (service.providerId !== providerId && roleName.every((item) => item.name !== RoleName.Admin)) {
+
+            throw UnauthorizedAccessException
+        }
+    }
+    async serviceItemBelongProvider(serviceItemId: number, providerId: number, roleName: Pick<RoleType, "id" | "name">[]) {
+        const serviceItem = await this.prismaService.serviceItem.findUnique({
+            where: { id: serviceItemId },
+            select: { providerId: true },
+        });
+
+        if (!serviceItem) {
+            throw ServiceProviderNotFoundException;
+        }
+
+        if (serviceItem.providerId !== providerId && roleName.every((item) => item.name !== RoleName.Admin)) {
 
             throw UnauthorizedAccessException
         }

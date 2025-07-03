@@ -12,6 +12,17 @@ export const CreateServiceItemSchema = ServiceItemSchema.pick({
     model: true,
     stockQuantity: true,
 }).strict()
+export const UpdateServiceItemSchema = ServiceItemSchema.pick({
+    name: true,
+    unitPrice: true,
+    warrantyPeriod: true,
+    brand: true,
+    description: true,
+    isActive: true,
+    model: true,
+    stockQuantity: true,
+    id: true
+}).strict()
 export const GetServiceItemsQuerySchema = z.object({
     isActive: z.coerce.boolean(),
     page: z.coerce.number().int().positive().default(1),
@@ -24,4 +35,7 @@ export const GetServiceItemsQuerySchema = z.object({
 })
 export type GetServiceItemsQueryType = z.infer<typeof GetServiceItemsQuerySchema>
 
+
 export type CreateServiceItemType = z.infer<typeof CreateServiceItemSchema>
+export type UpdateServiceItemType = z.infer<typeof UpdateServiceItemSchema>
+

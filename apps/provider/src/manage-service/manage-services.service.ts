@@ -4,7 +4,7 @@ import { CreateServiceType, GetServicesForProviderQueryType, UpdateServiceBodyTy
 import { ManageServicesRepository } from './manager-service.repo';
 import { SharedServiceItemRepository } from 'libs/common/src/repositories/shared-service-item.repo';
 import { InvalidServiceItemsIdException } from 'libs/common/src/errors/share-service-item.error';
-import { CreateServiceItemType, GetServiceItemsQueryType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
 
 
 @Injectable()
@@ -38,6 +38,10 @@ export class ManageServicesService {
     async updateService(data: UpdateServiceBodyType, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(data.id, providerId, roles)
         return await this.servicesRepository.updateServices(data, userId)
+    }
+    async updateServiceItem(data: UpdateServiceItemType, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
+        await this.servicesRepository.serviceItemBelongProvider(data.id, providerId, roles)
+        return await this.servicesRepository.updateServiceItem(data)
     }
     async deleteService(serviceId: number, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(serviceId, providerId, roles)

@@ -1,17 +1,13 @@
 import { Controller } from '@nestjs/common';
 
 import { ZodSerializerDto } from 'nestjs-zod';
-
-
-
 import { CreateServicesBodyDTO, DeleteServicesParamDTO, GetServiceResDTO, GetServicesForProviderQueryDTO, GetServicesForProviderResDTO, UpdateServicesBodyDTO } from 'libs/common/src/request-response-type/service/services.dto';
 import { AccessTokenPayload } from 'libs/common/src/types/jwt.type';
 import { MessageResDTO } from 'libs/common/src/dtos/response.dto';
 import { ManageServicesService } from './manage-services.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateServiceItemType, GetServiceItemsQueryType } from 'libs/common/src/request-response-type/service-item/service-item.model';
-
-
+import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { RoleType } from 'libs/common/src/models/shared-role.model';
 @Controller('manage-services')
 export class ManageServicesController {
   constructor(private readonly manageServicesService: ManageServicesService) { }
@@ -36,13 +32,22 @@ export class ManageServicesController {
       message: "Create service item successfully"
     }
   }
+  @MessagePattern({ cmd: "update-service-item" })
+
+  @ZodSerializerDto(CreateServicesBodyDTO)
+  async updateServiceItem(@Payload() { body, providerId, role }: { body: UpdateServiceItemType, providerId: number, role: Pick<RoleType, "id" | "name">[] }) {
+    console.log("create service item");
+    await this.manageServicesService.updateServiceItem(body, providerId, role)
+    return {
+      message: "Create service item successfully"
+    }
+  }
   @MessagePattern({ cmd: "get-service-item" })
 
   @ZodSerializerDto(CreateServicesBodyDTO)
-  async getServiceItem(@Payload() { body, providerId }: { body: GetServiceItemsQueryType, providerId: number }) {
-    console.log("create service item");
-    await this.manageServicesService.getListService({
-      ...body, providerId
+  async getServiceItem(@Payload() { query, providerId }: { query: GetServiceItemsQueryType, providerId: number }) {
+    await this.manageServicesService.getListServiceItem({
+      ...query, providerId
 
 
     })
