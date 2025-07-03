@@ -46,6 +46,9 @@ export class ManageServicesController {
 
   @ZodSerializerDto(CreateServicesBodyDTO)
   async getServiceItem(@Payload() { query, providerId }: { query: GetServiceItemsQueryType, providerId: number }) {
+    console.log(query);
+    console.log(providerId);
+
     const data = await this.manageServicesService.getListServiceItem({
       ...query, providerId
 
@@ -90,6 +93,7 @@ export class ManageServicesController {
 
   @MessagePattern({ cmd: "get-service-item-detail" })
   async getDetailServiceItem(@Payload() { param, user }: { param: GetServiceItemParamsType, user: AccessTokenPayload }) {
+
     const data = await this.manageServicesService.getServiceItemDetail(param, user.providerId as number)
     return {
       message: `Get service ${data?.id} detail successfully`,
