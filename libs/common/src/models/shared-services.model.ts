@@ -1,3 +1,4 @@
+import { ServiceStatus } from '@prisma/client'
 import { z } from 'zod'
 
 export const ServiceSchema = z.object({
@@ -23,7 +24,7 @@ export const ServiceSchema = z.object({
         .max(1440, 'Duration cannot exceed 24 hours'),
     serviceItemsId: z.array(z.number()).optional(),
     providerId: z.number().int().nonnegative(),
-
+    status: z.enum([ServiceStatus.ACCEPTED, ServiceStatus.PENDING, ServiceStatus.REJECTED]),
     createdById: z.number().nullable(),
     updatedById: z.number().nullable(),
     deletedById: z.number().nullable(),

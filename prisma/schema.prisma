@@ -301,6 +301,7 @@ model Service {
   description        String                 @default("test description") @db.VarChar(100)
   categoryId         Int
   unit               Unit                   @default(PER_JOB)
+  status             ServiceStatus          @default(PENDING)
   proposedInBookings ProposedService[]
   recurringBookings  RecurringBooking[]
   reviews            Review[]
@@ -613,4 +614,10 @@ enum RequestStatus {
   PENDING
   IN_PROGRESS
   ESTIMATED
+}
+
+enum ServiceStatus {
+  PENDING
+  REJECTED
+  ACCEPTED
 }
