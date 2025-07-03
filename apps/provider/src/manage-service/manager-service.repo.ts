@@ -183,6 +183,7 @@ export class ManageServicesRepository {
             providerId
         }
         console.log("ahihi");
+        console.log(typeof isActive);
         console.log(isActive);
 
         if (isActive === true) {
