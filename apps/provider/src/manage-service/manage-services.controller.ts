@@ -39,7 +39,7 @@ export class ManageServicesController {
     console.log("create service item");
     await this.manageServicesService.updateServiceItem(body, providerId, role)
     return {
-      message: "Create service item successfully"
+      message: "Update service item successfully"
     }
   }
   @MessagePattern({ cmd: "get-service-item" })

@@ -5,11 +5,13 @@ import { ManageServicesRepository } from './manager-service.repo';
 import { SharedServiceItemRepository } from 'libs/common/src/repositories/shared-service-item.repo';
 import { InvalidServiceItemsIdException, ServiceItemNotFoundException } from 'libs/common/src/errors/share-service-item.error';
 import { CreateServiceItemType, GetServiceItemParamsType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { SharedCategoryRepository } from 'libs/common/src/repositories/shared-category.repo';
+import { InvalidCategoryIdException } from 'libs/common/src/errors/share-category.error';
 
 
 @Injectable()
 export class ManageServicesService {
-    constructor(private readonly servicesRepository: ManageServicesRepository, private readonly serviceItemRepository: SharedServiceItemRepository) {
+    constructor(private readonly servicesRepository: ManageServicesRepository, private readonly serviceItemRepository: SharedServiceItemRepository, private readonly categoryRepository: SharedCategoryRepository) {
 
     }
     async createService(data: CreateServiceType, userId: number, providerId: number) {
@@ -23,6 +25,7 @@ export class ManageServicesService {
             }
 
         }
+        if ((await this.categoryRepository.findUnique([data.categoryId])).length < 0) throw InvalidCategoryIdException([data.categoryId])
         return await this.servicesRepository.createService(data, userId, providerId)
     }
     async getListService(data: GetServicesForProviderQueryType & { providerId: number }) {

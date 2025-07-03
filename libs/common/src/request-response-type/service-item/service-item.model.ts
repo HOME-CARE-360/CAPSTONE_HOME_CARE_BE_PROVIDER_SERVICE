@@ -23,8 +23,12 @@ export const UpdateServiceItemSchema = ServiceItemSchema.pick({
     stockQuantity: true,
     id: true
 }).strict()
+const isActiveSchema = z
+    .union([z.literal("true"), z.literal("false")])
+    .transform((v) => v === "true")
+    .optional();
 export const GetServiceItemsQuerySchema = z.object({
-    isActive: z.coerce.boolean().optional(),
+    isActive: isActiveSchema,
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().default(10),
     name: z.string().optional(),
