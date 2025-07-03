@@ -6,7 +6,7 @@ import { AccessTokenPayload } from 'libs/common/src/types/jwt.type';
 import { MessageResDTO } from 'libs/common/src/dtos/response.dto';
 import { ManageServicesService } from './manage-services.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { CreateServiceItemType, GetServiceItemParamsType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
 import { RoleType } from 'libs/common/src/models/shared-role.model';
 @Controller('manage-services')
 export class ManageServicesController {
@@ -46,13 +46,14 @@ export class ManageServicesController {
 
   @ZodSerializerDto(CreateServicesBodyDTO)
   async getServiceItem(@Payload() { query, providerId }: { query: GetServiceItemsQueryType, providerId: number }) {
-    await this.manageServicesService.getListServiceItem({
+    const data = await this.manageServicesService.getListServiceItem({
       ...query, providerId
 
 
     })
     return {
-      message: "Create service item successfully"
+      data,
+      message: "Get services item successfully"
     }
   }
   @MessagePattern({ cmd: "/list-service" })
@@ -78,6 +79,15 @@ export class ManageServicesController {
       message: `Delete service ${data.name} with id:${data.id} successfully`
     }
   }
+  @MessagePattern({ cmd: "delete-service-item" })
+  @ZodSerializerDto(UpdateServicesBodyDTO)
+  async deleteServiceItem(@Payload() { param, user }: { param: GetServiceItemParamsType, user: AccessTokenPayload }) {
+    const data = await this.manageServicesService.deleteServiceItem(param, user.providerId as number)
+    return {
+      message: `Delete service ${data.name} with id:${data.id} successfully`
+    }
+  }
+
   @MessagePattern({ cmd: "/detail" })
   @ZodSerializerDto(GetServiceResDTO)
   async getDetailService(@Payload() { serviceID, user }: { serviceID: DeleteServicesParamDTO, user: AccessTokenPayload }) {

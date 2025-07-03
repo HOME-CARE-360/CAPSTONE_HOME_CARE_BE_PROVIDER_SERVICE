@@ -3,8 +3,8 @@ import { RoleType } from 'libs/common/src/models/shared-role.model';
 import { CreateServiceType, GetServicesForProviderQueryType, UpdateServiceBodyType } from 'libs/common/src/request-response-type/service/services.model';
 import { ManageServicesRepository } from './manager-service.repo';
 import { SharedServiceItemRepository } from 'libs/common/src/repositories/shared-service-item.repo';
-import { InvalidServiceItemsIdException } from 'libs/common/src/errors/share-service-item.error';
-import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
+import { InvalidServiceItemsIdException, ServiceItemNotFoundException } from 'libs/common/src/errors/share-service-item.error';
+import { CreateServiceItemType, GetServiceItemParamsType, GetServiceItemsQueryType, UpdateServiceItemType } from 'libs/common/src/request-response-type/service-item/service-item.model';
 
 
 @Injectable()
@@ -46,6 +46,10 @@ export class ManageServicesService {
     async deleteService(serviceId: number, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(serviceId, providerId, roles)
         return await this.servicesRepository.deleteService(serviceId, userId)
+    }
+    async deleteServiceItem(data: GetServiceItemParamsType, providerId: number) {
+        if (await this.serviceItemRepository.findUniqueBelongToProvider(data.serviceItemId, providerId)) throw ServiceItemNotFoundException
+        return await this.servicesRepository.deleteServiceItem(data)
     }
     async getServiceDetail(serviceId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(serviceId, providerId, roles)

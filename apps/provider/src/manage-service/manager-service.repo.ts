@@ -8,7 +8,7 @@ import { ServiceProviderNotFoundException } from "libs/common/src/errors/share-p
 import { ServiceNotFoundException } from "libs/common/src/errors/share-service.error"
 import { RoleType } from "libs/common/src/models/shared-role.model"
 import { ServiceType } from "libs/common/src/models/shared-services.model"
-import { CreateServiceItemType, GetServiceItemsQueryType, UpdateServiceItemType } from "libs/common/src/request-response-type/service-item/service-item.model"
+import { CreateServiceItemType, GetServiceItemParamsType, GetServiceItemsQueryType, UpdateServiceItemType } from "libs/common/src/request-response-type/service-item/service-item.model"
 import { UpdateServiceBodyType } from "libs/common/src/request-response-type/service/services.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -276,6 +276,17 @@ export class ManageServicesRepository {
         })
 
 
+
+    }
+    async deleteServiceItem(data: GetServiceItemParamsType) {
+        return await this.prismaService.serviceItem.update({
+            where: {
+                id: data.serviceItemId
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        })
 
     }
     async serviceBelongProvider(serviceId: number, providerId: number, roleName: Pick<RoleType, "id" | "name">[]) {

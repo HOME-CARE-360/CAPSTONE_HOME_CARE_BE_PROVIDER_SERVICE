@@ -75,6 +75,7 @@ export const GetServiceParamsSchema = z
         serviceId: z.coerce.number().int().positive(),
     })
     .strict()
+
 export const UpdateServiceBodySchema = ServiceBodyPrototype.merge(ServiceSchema.pick({
     id: true
 }))

@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { RpcException } from "@nestjs/microservices";
 
 export function InvalidServiceItemsIdException(invalidIds: number[]) {
@@ -12,3 +12,12 @@ export function InvalidServiceItemsIdException(invalidIds: number[]) {
         ])
     )
 }
+export const ServiceItemNotFoundException = new RpcException(
+    new NotFoundException(
+        [
+            {
+                message: 'Error.ServiceItemNotFoundOrNotBelongToProvider',
+                path: ['serviceItemId'],
+            },
+        ])
+);

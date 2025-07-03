@@ -12,6 +12,15 @@ export class SharedServiceItemRepository {
             select: { id: true }
         });
     }
+    async findUniqueBelongToProvider(serviceItemId: number, providerId: number) {
+        return await this.prismaService.serviceItem.findUnique({
+            where: {
+                id: serviceItemId,
+                providerId
+            },
+            select: { id: true }
+        });
+    }
 
 
 

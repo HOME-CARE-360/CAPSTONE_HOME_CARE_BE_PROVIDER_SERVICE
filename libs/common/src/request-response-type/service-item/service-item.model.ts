@@ -33,6 +33,13 @@ export const GetServiceItemsQuerySchema = z.object({
     orderBy: z.enum([OrderBy.Asc, OrderBy.Desc]).default(OrderBy.Desc),
     sortBy: z.enum([SortBy.CreatedAt, SortBy.Price]).default(SortBy.CreatedAt),
 })
+export const GetServiceItemParamsSchema = z
+    .object({
+        serviceItemId: z.coerce.number().int().positive(),
+    })
+    .strict()
+export type GetServiceItemParamsType = z.infer<typeof GetServiceItemParamsSchema>
+
 export type GetServiceItemsQueryType = z.infer<typeof GetServiceItemsQuerySchema>
 
 
