@@ -40,6 +40,8 @@ export class ManageServicesService {
     }
     async updateService(data: UpdateServiceBodyType, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(data.id, providerId, roles)
+        if ((await this.categoryRepository.findUnique([data.categoryId])).length < 0) throw InvalidCategoryIdException([data.categoryId])
+
         return await this.servicesRepository.updateServices(data, userId)
     }
     async updateServiceItem(data: UpdateServiceItemType, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
