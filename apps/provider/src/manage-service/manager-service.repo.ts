@@ -182,6 +182,9 @@ export class ManageServicesRepository {
             deletedAt: null,
             providerId
         }
+        console.log("ahihi");
+        console.log(isActive);
+
         if (isActive === true) {
             where.isActive = true
         } else if (isActive === false) {
