@@ -211,6 +211,8 @@ export class ManageServicesRepository {
                 unitPrice: orderBy,
             }
         }
+        console.log(where);
+
         const [totalItems, data] = await Promise.all([
             this.prismaService.serviceItem.count({
                 where,
