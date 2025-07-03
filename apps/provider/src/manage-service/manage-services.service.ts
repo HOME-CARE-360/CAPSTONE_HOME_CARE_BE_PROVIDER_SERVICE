@@ -60,4 +60,7 @@ export class ManageServicesService {
     async createServiceItem(body: CreateServiceItemType, providerID: number) {
         return await this.servicesRepository.createServiceItem(body, providerID)
     }
+    async getServiceItemDetail(data: GetServiceItemParamsType, providerId: number) {
+        return await this.servicesRepository.getServiceItemDetail(data, providerId)
+    }
 }

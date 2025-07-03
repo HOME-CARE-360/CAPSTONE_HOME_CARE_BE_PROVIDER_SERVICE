@@ -88,6 +88,14 @@ export class ManageServicesController {
     }
   }
 
+  @MessagePattern({ cmd: "get-service-item-detail" })
+  async getDetailServiceItem(@Payload() { param, user }: { param: GetServiceItemParamsType, user: AccessTokenPayload }) {
+    const data = await this.manageServicesService.getServiceItemDetail(param, user.providerId as number)
+    return {
+      message: `Get service ${data?.id} detail successfully`,
+      data
+    }
+  }
   @MessagePattern({ cmd: "/detail" })
   @ZodSerializerDto(GetServiceResDTO)
   async getDetailService(@Payload() { serviceID, user }: { serviceID: DeleteServicesParamDTO, user: AccessTokenPayload }) {

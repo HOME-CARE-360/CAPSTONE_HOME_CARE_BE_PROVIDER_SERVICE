@@ -278,6 +278,14 @@ export class ManageServicesRepository {
 
 
     }
+    async getServiceItemDetail(data: GetServiceItemParamsType, providerId: number) {
+        return await this.prismaService.serviceItem.findFirst({
+            where: {
+                id: data.serviceItemId,
+                providerId
+            }
+        })
+    }
     async deleteServiceItem(data: GetServiceItemParamsType) {
         return await this.prismaService.serviceItem.update({
             where: {
