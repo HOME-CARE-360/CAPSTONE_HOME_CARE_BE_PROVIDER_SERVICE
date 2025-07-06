@@ -284,34 +284,34 @@ model Category {
 }
 
 model Service {
-  id                 Int                    @id @default(autoincrement())
-  basePrice          Float
-  virtualPrice       Float
-  images             String[]
-  durationMinutes    Int
-  providerId         Int
-  createdById        Int?
-  updatedById        Int?
-  deletedById        Int?
-  deletedAt          DateTime?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  name               String                 @default("test") @db.VarChar(100)
-  publishedAt        DateTime?              @default(now())
-  description        String                 @default("test description") @db.VarChar(100)
-  categoryId         Int
-  unit               Unit                   @default(PER_JOB)
-  status             ServiceStatus          @default(PENDING)
-  proposedInBookings ProposedService[]
-  recurringBookings  RecurringBooking[]
-  reviews            Review[]
-  category           Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdBy          User?                  @relation("ServiceCreatedBy", fields: [createdById], references: [id])
-  deletedBy          User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
-  provider           ServiceProvider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  updatedBy          User?                  @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
-  translations       ServiceTranslation[]
-  attachedItems      Service_ServiceItems[]
+  id                Int                    @id @default(autoincrement())
+  basePrice         Float
+  virtualPrice      Float
+  images            String[]
+  durationMinutes   Int
+  providerId        Int
+  createdById       Int?
+  updatedById       Int?
+  deletedById       Int?
+  deletedAt         DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  name              String                 @default("test") @db.VarChar(100)
+  publishedAt       DateTime?              @default(now())
+  description       String                 @default("test description") @db.VarChar(5000)
+  categoryId        Int
+  unit              Unit                   @default(PER_JOB)
+  status            ServiceStatus          @default(PENDING)
+  ProposalItem      ProposalItem[]
+  recurringBookings RecurringBooking[]
+  reviews           Review[]
+  category          Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdBy         User?                  @relation("ServiceCreatedBy", fields: [createdById], references: [id])
+  deletedBy         User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
+  provider          ServiceProvider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  updatedBy         User?                  @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
+  translations      ServiceTranslation[]
+  attachedItems     Service_ServiceItems[]
 
   @@index([deletedAt])
 }
@@ -359,7 +359,7 @@ model Booking {
   serviceRequest   ServiceRequest?   @relation(fields: [serviceRequestId], references: [id])
   staff            Staff?            @relation("StaffBooking", fields: [staffId], references: [id], onDelete: Cascade)
   inspectionReport InspectionReport?
-  proposedServices ProposedService[]
+  Proposal         Proposal?
   transaction      Transaction?
   workLogs         WorkLog[]
 }
@@ -382,18 +382,6 @@ model ServiceRequest {
   provider      ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([status])
-}
-
-model ProposedService {
-  id        Int      @id @default(autoincrement())
-  bookingId Int
-  serviceId Int
-  quantity  Int      @default(1)
-  price     Float
-  notes     String?
-  createdAt DateTime @default(now())
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 }
 
 model InspectionReport {
@@ -515,6 +503,26 @@ model ChatMessage {
   sentAt     DateTime        @default(now())
   isRead     Boolean         @default(false)
   customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Proposal {
+  id           Int            @id @default(autoincrement())
+  bookingId    Int            @unique
+  notes        String?
+  createdAt    DateTime       @default(now())
+  Booking      Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  ProposalItem ProposalItem[]
+}
+
+model ProposalItem {
+  id         Int      @id @default(autoincrement())
+  proposalId Int
+  serviceId  Int
+  quantity   Int      @default(1)
+  price      Float
+  createdAt  DateTime @default(now())
+  Proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  Service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 }
 
 enum UserStatus {

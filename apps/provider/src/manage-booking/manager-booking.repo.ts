@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common"
 import { BookingStatus, Prisma, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
+import { CreateProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
 
@@ -96,5 +97,40 @@ export class ManageBookingsRepository {
                 status: BookingStatus.PENDING
             }
         })])
+    }
+    async createProposed(body: CreateProposedServiceType) {
+        return await this.prismaService.$transaction(async (tx) => {
+            await tx.booking.update({
+                where: {
+
+                    id: body.bookingId
+                },
+                data: {
+                    serviceRequest: {
+                        update: {
+                            status: RequestStatus.ESTIMATED
+                        }
+                    }
+
+                }
+            })
+            await tx.proposal.create({
+                data: {
+                    notes: body.notes,
+                    bookingId: body.bookingId,
+
+                    ProposalItem: {
+                        create: body.services.map((item) => ({
+                            serviceId: item.serviceId,
+                            quantity: item.quantity,
+                            price: item.price,
+
+                        })),
+                    }
+
+                }
+            })
+        })
+
     }
 }

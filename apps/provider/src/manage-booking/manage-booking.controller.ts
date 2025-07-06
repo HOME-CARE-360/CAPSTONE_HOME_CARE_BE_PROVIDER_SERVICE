@@ -2,6 +2,7 @@ import { Controller, Get, Post, } from "@nestjs/common";
 import { ManageBookingsService } from "./manage-booking.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AssignStaffToBookingBodySchemaType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
+import { CreateProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model";
 
 
 @Controller('manage-bookings')
@@ -21,6 +22,9 @@ export class ManageBookingsController {
   async assignStaffToBooking(@Payload() { data, providerID }: { data: AssignStaffToBookingBodySchemaType, providerID: number }) {
     return await this.manageBookingService.assignStaffToBooking(data, providerID)
   }
-
+  @MessagePattern({ cmd: "create-proposed" })
+  async createProposed(@Payload() { data, providerID }: { data: CreateProposedServiceType, providerID: number }) {
+    return await this.manageBookingService.createProposed(data, providerID)
+  }
 
 }
