@@ -23,6 +23,8 @@ export class ManageBookingsController {
     console.log("vo r");
 
     return await this.manageBookingService.assignStaffToBooking(data, providerID)
+    console.log("ket thuc");
+
   }
   @MessagePattern({ cmd: "create-proposed" })
   async createProposed(@Payload() { data, providerID }: { data: CreateProposedServiceType, providerID: number }) {

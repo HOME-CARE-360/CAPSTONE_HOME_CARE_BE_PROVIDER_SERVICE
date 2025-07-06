@@ -24,6 +24,8 @@ export class ManageBookingsService {
         const [staff, serviceRequest] = await Promise.all([this.sharedStaffRepository.findUniqueStaffAndBelongToProvider(body.staffId, providerId), this.sharedProviderRepository.findUniqueServiceRequestBelongToProvider({ providerId, serviceRequestId: body.serviceRequestId })])
         if (!staff) throw StaffNotFoundOrNotBelongToProviderException
         if (!serviceRequest) throw ServiceRequestNotFoundException
+        console.log("toi day r");
+
         return await this.manageBookingRepository.assignStaffToBooking(body)
     }
     async createProposed(body: CreateProposedServiceType, providerId: number) {
