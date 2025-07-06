@@ -24,5 +24,13 @@ export const AssignStaffToBookingBodySchema = BookingSchema.pick({
     customerId: true,
     serviceRequestId: true,
 })
+
+export const CreateBookingBodySchema = BookingSchema.omit({
+    updatedAt: true,
+    createdAt: true,
+    id: true
+}).strict()
+
+export type CreateBookingBodyType = z.infer<typeof CreateBookingBodySchema>
 export type GetServicesRequestQueryType = z.infer<typeof GetServicesRequestQuerySchema>
 export type AssignStaffToBookingBodySchemaType = z.infer<typeof AssignStaffToBookingBodySchema>

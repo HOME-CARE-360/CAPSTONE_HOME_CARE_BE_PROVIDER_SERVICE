@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { BookingStatus, Prisma, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
+import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
 import { CreateProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
@@ -9,7 +10,7 @@ import { PrismaService } from "libs/common/src/services/prisma.service"
 
 @Injectable()
 export class ManageBookingsRepository {
-    constructor(private readonly prismaService: PrismaService) { }
+    constructor(private readonly prismaService: PrismaService, private readonly sharedBookingRepository: SharedBookingRepository) { }
     async getListRequestService({ status, location, limit, page, orderBy, sortBy, categories, providerId }: { status?: RequestStatus, sortBy: SortByServiceRequestType, orderBy: OrderByType, location?: string, limit: number, page: number, categories?: number[], providerId: number }) {
         const skip = (page - 1) * limit
         const take = limit
@@ -90,12 +91,10 @@ export class ManageBookingsRepository {
             data: {
                 status: RequestStatus.IN_PROGRESS
             }
-        }), this.prismaService.booking.create({
-            data: {
-                ...body,
-                providerId,
-                status: BookingStatus.PENDING
-            }
+        }), this.sharedBookingRepository.create({
+            ...body,
+            status: BookingStatus.PENDING,
+            providerId,
         })])
     }
     async createProposed(body: CreateProposedServiceType) {
