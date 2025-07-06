@@ -100,38 +100,44 @@ export class ManageBookingsRepository {
 
     }
     async createProposed(body: CreateProposedServiceType) {
-        return await this.prismaService.$transaction(async (tx) => {
-            await tx.booking.update({
-                where: {
+        try {
+            return await this.prismaService.$transaction(async (tx) => {
+                await tx.booking.update({
+                    where: {
 
-                    id: body.bookingId
-                },
-                data: {
-                    serviceRequest: {
-                        update: {
-                            status: RequestStatus.ESTIMATED
+                        id: body.bookingId
+                    },
+                    data: {
+                        serviceRequest: {
+                            update: {
+                                status: RequestStatus.ESTIMATED
+                            }
                         }
+
                     }
+                })
+                await tx.proposal.create({
+                    data: {
+                        notes: body.notes,
+                        bookingId: body.bookingId,
 
-                }
-            })
-            await tx.proposal.create({
-                data: {
-                    notes: body.notes,
-                    bookingId: body.bookingId,
+                        ProposalItem: {
+                            create: body.services.map((item) => ({
+                                serviceId: item.serviceId,
+                                quantity: item.quantity,
+                                price: item.price,
 
-                    ProposalItem: {
-                        create: body.services.map((item) => ({
-                            serviceId: item.serviceId,
-                            quantity: item.quantity,
-                            price: item.price,
+                            })),
+                        }
 
-                        })),
                     }
-
-                }
+                })
             })
-        })
+        } catch (error) {
+            console.log(error);
+
+        }
+
 
     }
 }

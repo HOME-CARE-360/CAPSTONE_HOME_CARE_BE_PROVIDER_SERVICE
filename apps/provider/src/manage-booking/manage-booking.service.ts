@@ -9,7 +9,7 @@ import { CreateProposedServiceType } from "libs/common/src/request-response-type
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
 import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
-import { InvalidServiceItemsIdException } from "libs/common/src/errors/share-service-item.error"
+import { InvalidServiceIdException } from "libs/common/src/errors/share-service.error"
 
 @Injectable()
 export class ManageBookingsService {
@@ -46,7 +46,7 @@ export class ManageBookingsService {
         const foundIds = services.map((s) => s.id);
         const notFound = body.services.filter((item) => !foundIds.includes(item.serviceId))
         if (notFound.length > 0) {
-            throw InvalidServiceItemsIdException(notFound.map((item) => item.serviceId))
+            throw InvalidServiceIdException(notFound.map((item) => item.serviceId))
         }
         return await this.manageBookingRepository.createProposed(body)
     }

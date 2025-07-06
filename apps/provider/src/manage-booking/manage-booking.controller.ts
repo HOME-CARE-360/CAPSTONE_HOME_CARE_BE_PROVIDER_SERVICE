@@ -28,7 +28,8 @@ export class ManageBookingsController {
   }
   @MessagePattern({ cmd: "create-proposed" })
   async createProposed(@Payload() { data, providerID }: { data: CreateProposedServiceType, providerID: number }) {
-    return await this.manageBookingService.createProposed(data, providerID)
+    const proposed = await this.manageBookingService.createProposed(data, providerID)
+    return proposed
   }
 
 }
