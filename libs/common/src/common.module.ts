@@ -21,6 +21,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { SharedServiceItemRepository } from './repositories/shared-service-item.repo';
 import { SharedBookingRepository } from './repositories/shared-booking.repo';
 import { SharedServicesRepository } from './repositories/shared-service.repo';
+import { SharedProposalRepository } from './repositories/shared-proposed.repo';
 const sharedServices = [
   PrismaService,
   HashingService,
@@ -38,7 +39,8 @@ const sharedServices = [
   SharedUserRepository,
   SharedServiceItemRepository,
   SharedBookingRepository,
-  SharedServicesRepository
+  SharedServicesRepository,
+  SharedProposalRepository
 ]
 
 @Global()

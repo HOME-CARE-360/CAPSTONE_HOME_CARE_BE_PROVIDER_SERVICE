@@ -10,10 +10,12 @@ import { SharedBookingRepository } from "libs/common/src/repositories/shared-boo
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
 import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
 import { InvalidServiceIdException } from "libs/common/src/errors/share-service.error"
+import { SharedProposalRepository } from "libs/common/src/repositories/shared-proposed.repo"
+import { ProposalAlreadyExistsException } from "libs/common/src/errors/shared-proposal.error"
 
 @Injectable()
 export class ManageBookingsService {
-    constructor(private readonly manageBookingRepository: ManageBookingsRepository, private readonly sharedStaffRepository: ShareStaffRepository, private readonly sharedProviderRepository: SharedProviderRepository, private readonly bookingRepository: SharedBookingRepository, private readonly serviceRepository: SharedServicesRepository) {
+    constructor(private readonly manageBookingRepository: ManageBookingsRepository, private readonly sharedStaffRepository: ShareStaffRepository, private readonly sharedProviderRepository: SharedProviderRepository, private readonly bookingRepository: SharedBookingRepository, private readonly serviceRepository: SharedServicesRepository, private readonly proposalRepository: SharedProposalRepository) {
 
     }
     async getListServiceRequest(data: GetServicesRequestQueryType, providerId: number) {
@@ -29,15 +31,18 @@ export class ManageBookingsService {
         return await this.manageBookingRepository.assignStaffToBooking(body)
     }
     async createProposed(body: CreateProposedServiceType, providerId: number) {
-        const [booking, services, belong] = await Promise.all([this.bookingRepository.findUnique({ id: body.bookingId }),
+        const [booking, services, belong, proposal] = await Promise.all([this.bookingRepository.findUnique({ id: body.bookingId }),
         this.serviceRepository.findUnique(body.services.map((item) => item.serviceId)),
         this.bookingRepository.findBookingBelongToProvider({
             id: body.bookingId,
             providerId,
 
-        })])
+        }), this.proposalRepository.findUnique(body.bookingId)])
         if (!booking) {
             throw BookingNotFoundException
+        }
+        if (proposal) {
+            throw ProposalAlreadyExistsException
         }
         if (!belong) {
             throw BookingNotFoundOrNotBelongToProviderException

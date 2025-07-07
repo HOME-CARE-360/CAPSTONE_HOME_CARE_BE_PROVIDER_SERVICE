@@ -84,19 +84,22 @@ export class ManageBookingsRepository {
         }
     }
     async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType) {
-        try {
-            return await this.prismaService.serviceRequest.update({
-                where: {
-                    id: body.serviceRequestId
-                },
-                data: {
-                    status: RequestStatus.IN_PROGRESS
-                }
-            })
-        } catch (error) {
-            console.log(error);
 
-        }
+        return await Promise.all([this.prismaService.serviceRequest.update({
+            where: {
+                id: body.serviceRequestId
+            },
+            data: {
+                status: RequestStatus.IN_PROGRESS
+            }
+        }), this.prismaService.booking.update({
+            where: {
+                serviceRequestId: body.serviceRequestId
+            }, data: {
+                staffId: body.staffId
+            }
+        })])
+
 
     }
     async createProposed(body: CreateProposedServiceType) {

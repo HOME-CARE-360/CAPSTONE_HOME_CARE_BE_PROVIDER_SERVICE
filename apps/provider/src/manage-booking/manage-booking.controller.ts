@@ -20,10 +20,10 @@ export class ManageBookingsController {
   @MessagePattern({ cmd: "assign-staff-to-booking" })
   @Post("assign-staff-to-booking")
   async assignStaffToBooking(@Payload() { data, providerID }: { data: AssignStaffToBookingBodySchemaType, providerID: number }) {
-    console.log("vo r");
+
 
     return await this.manageBookingService.assignStaffToBooking(data, providerID)
-    console.log("ket thuc");
+
 
   }
   @MessagePattern({ cmd: "create-proposed" })
