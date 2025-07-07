@@ -4,10 +4,10 @@ import { PrismaService } from "../services/prisma.service";
 @Injectable()
 export class SharedProposalRepository {
     constructor(private readonly prismaService: PrismaService) { }
-    async findUnique(proposalId: number) {
+    async findUnique(bookingId: number) {
         return await this.prismaService.proposal.findUnique({
             where: {
-                id: proposalId
+                bookingId: bookingId
             },
             select: { id: true }
         });
