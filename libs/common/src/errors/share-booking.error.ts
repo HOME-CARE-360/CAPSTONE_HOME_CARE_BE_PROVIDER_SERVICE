@@ -15,3 +15,12 @@ export const BookingNotFoundOrNotBelongToProviderException = new RpcException(
             },
         ])
 );
+export const ServiceRequestNotFoundOrNotBelongToProviderException = new RpcException(
+    new NotFoundException(
+        [
+            {
+                message: 'Error.ServiceRequestNotFoundOrNotBelongToProvider',
+                path: ['serviceRequestId'],
+            },
+        ])
+);

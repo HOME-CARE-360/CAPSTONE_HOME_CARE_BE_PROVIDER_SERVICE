@@ -18,6 +18,12 @@ export class ManageBookingsService {
     constructor(private readonly manageBookingRepository: ManageBookingsRepository, private readonly sharedStaffRepository: ShareStaffRepository, private readonly sharedProviderRepository: SharedProviderRepository, private readonly bookingRepository: SharedBookingRepository, private readonly serviceRepository: SharedServicesRepository, private readonly proposalRepository: SharedProposalRepository) {
 
     }
+    async cancelRequest(serviceRequestId: number, providerId: number) {
+        if (!await this.bookingRepository.findUniqueServiceRequest({ id: serviceRequestId, providerId })) {
+            throw ServiceRequestNotFoundException
+        }
+        await this.manageBookingRepository.cancelRequestService(serviceRequestId)
+    }
     async getListServiceRequest(data: GetServicesRequestQueryType, providerId: number) {
 
         return await this.manageBookingRepository.getListRequestService({ ...data, providerId })
@@ -27,7 +33,6 @@ export class ManageBookingsService {
         if (!staff) throw StaffNotFoundOrNotBelongToProviderException
         if (!serviceRequest) throw ServiceRequestNotFoundException
         console.log("toi day r");
-
         return await this.manageBookingRepository.assignStaffToBooking(body)
     }
     async createProposed(body: CreateProposedServiceType, providerId: number) {

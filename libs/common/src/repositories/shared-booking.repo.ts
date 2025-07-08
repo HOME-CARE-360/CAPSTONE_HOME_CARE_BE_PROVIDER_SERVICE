@@ -12,6 +12,14 @@ export class SharedBookingRepository {
             }
         })
     }
+    async findUniqueServiceRequest({ id, providerId }: { id: number, providerId: number }) {
+        return await this.prismaService.serviceRequest.findUnique({
+            where: {
+                id,
+                providerId
+            }
+        })
+    }
 
     async findBookingBelongToProvider({ id, providerId }: { id: number, providerId: number }) {
         return await this.prismaService.booking.findUnique({

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { Prisma, RequestStatus } from "@prisma/client"
+import { BookingStatus, Prisma, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
@@ -101,6 +101,21 @@ export class ManageBookingsRepository {
         })])
 
 
+    }
+    async cancelRequestService(serviceRequestId: number) {
+        return await this.prismaService.$transaction(async (tx) => {
+            const serviceRequest = await tx.serviceRequest.update({
+                where: { id: serviceRequestId },
+                data: { status: RequestStatus.CANCELLED },
+            });
+
+            const booking = await tx.booking.update({
+                where: { serviceRequestId },
+                data: { status: BookingStatus.CANCELLED },
+            });
+
+            return { serviceRequest, booking };
+        });
     }
     async createProposed(body: CreateProposedServiceType) {
 

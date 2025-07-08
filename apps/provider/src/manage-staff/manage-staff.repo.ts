@@ -20,10 +20,12 @@ export class ManageStaffRepository {
             OR: [
                 {
                     booking: {
+                        every: {
+                            status: {
+                                in: ['COMPLETED', 'CANCELLED'],
+                            },
+                        }
 
-                        status: {
-                            in: ['COMPLETED', 'CANCELLED'],
-                        },
 
 
 
@@ -36,7 +38,9 @@ export class ManageStaffRepository {
                     },
                 },
                 {
-                    booking: null
+                    booking: {
+                        none: {}
+                    }
                 }
             ]
 
