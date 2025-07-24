@@ -3,4 +3,4 @@ import { AssignStaffToBookingBodySchema, GetServicesRequestQuerySchema } from ".
 
 
 export class GetServicesRequestQueryDTO extends createZodDto(GetServicesRequestQuerySchema) { }
-export class AssignStaffToBookingBodyDTO extends createZodDto(AssignStaffToBookingBodySchema){}
+export class AssignStaffToBookingBodyDTO extends createZodDto(AssignStaffToBookingBodySchema) { }

@@ -6,7 +6,6 @@ export const CreateProposalSchema = z.object({
     services: z.array(z.object({
         serviceId: z.number(),
         quantity: z.number(),
-        price: z.number()
     }))
 });
 

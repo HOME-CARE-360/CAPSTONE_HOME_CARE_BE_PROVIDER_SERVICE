@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  // output        = "../node_modules/.prisma/client"
+    // output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -29,9 +29,6 @@ model User {
   updatedCategories  Category[]        @relation("CategoryUpdatedBy")
   customerProfile    CustomerProfile?
   devices            Device[]
-  createdLanguages   Language[]        @relation("LanguageCreatedBy")
-  deletedLanguages   Language[]        @relation("LanguageDeletedBy")
-  updatedLanguages   Language[]        @relation("LanguageUpdatedBy")
   notifications      Notification[]
   createdPermissions Permission[]      @relation("PermissionCreatedBy")
   deletedPermissions Permission[]      @relation("PermissionDeletedBy")
@@ -52,6 +49,7 @@ model User {
   deletedUsers       User[]            @relation("DeletorUsers")
   updatedBy          User?             @relation("UpdatorUsers", fields: [updatedById], references: [id])
   updatedUsers       User[]            @relation("UpdatorUsers")
+  Wallet             Wallet?
   roles              Role[]            @relation("UserRoles")
 
   @@index([deletedAt])
@@ -104,6 +102,7 @@ model Device {
   lastActive    DateTime       @updatedAt
   createdAt     DateTime       @default(now())
   isActive      Boolean        @default(true)
+  fcmToken      String?
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
 }
@@ -133,38 +132,6 @@ model VerificationCode {
   @@index([expiresAt])
 }
 
-model Language {
-  id                   String                       @id @db.VarChar(10)
-  name                 String                       @db.VarChar(500)
-  createdById          Int?
-  updatedById          Int?
-  deletedById          Int?
-  deletedAt            DateTime?
-  createdAt            DateTime                     @default(now())
-  updatedAt            DateTime                     @updatedAt
-  categoryTranslations CategoryTranslation[]
-  createdBy            User?                        @relation("LanguageCreatedBy", fields: [createdById], references: [id])
-  deletedBy            User?                        @relation("LanguageDeletedBy", fields: [deletedById], references: [id])
-  updatedBy            User?                        @relation("LanguageUpdatedBy", fields: [updatedById], references: [id])
-  providerTranslations ServiceProviderTranslation[]
-  serviceTranslations  ServiceTranslation[]
-
-  @@index([deletedAt])
-}
-
-model ServiceTranslation {
-  id          Int       @id @default(autoincrement())
-  serviceId   Int
-  languageId  String
-  name        String    @db.VarChar(500)
-  description String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
-  service     Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-}
-
 model CategoryTranslation {
   id          Int       @id @default(autoincrement())
   categoryId  Int
@@ -175,7 +142,6 @@ model CategoryTranslation {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
   category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
 }
 
 model ServiceProviderTranslation {
@@ -187,7 +153,6 @@ model ServiceProviderTranslation {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   deletedAt       DateTime?
-  language        Language        @relation(fields: [languageId], references: [id], onDelete: Cascade)
   serviceProvider ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 }
 
@@ -310,7 +275,6 @@ model Service {
   deletedBy         User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
   provider          ServiceProvider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
   updatedBy         User?                  @relation("ServiceUpdatedBy", fields: [updatedById], references: [id])
-  translations      ServiceTranslation[]
   attachedItems     Service_ServiceItems[]
 
   @@index([deletedAt])
@@ -365,21 +329,22 @@ model Booking {
 }
 
 model ServiceRequest {
-  id            Int             @id @default(autoincrement())
-  customerId    Int
-  providerId    Int
-  note          String?
-  preferredDate DateTime
-  status        RequestStatus   @default(PENDING)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  location      String          @db.VarChar(500)
-  phoneNumber   String
-  categoryId    Int
-  booking       Booking?
-  category      Category        @relation(fields: [categoryId], references: [id])
-  customer      CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  provider      ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  id                 Int                 @id @default(autoincrement())
+  customerId         Int
+  providerId         Int
+  note               String?
+  preferredDate      DateTime
+  status             RequestStatus       @default(PENDING)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  location           String              @db.VarChar(500)
+  phoneNumber        String
+  categoryId         Int
+  booking            Booking?
+  PaymentTransaction PaymentTransaction?
+  category           Category            @relation(fields: [categoryId], references: [id])
+  customer           CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider           ServiceProvider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([status])
 }
@@ -413,18 +378,22 @@ model Transaction {
 }
 
 model PaymentTransaction {
-  id                 Int      @id @default(autoincrement())
-  gateway            String   @db.VarChar(100)
-  transactionDate    DateTime @default(now())
-  accountNumber      String?  @db.VarChar(100)
-  subAccount         String?  @db.VarChar(250)
-  amountIn           Int      @default(0)
-  amountOut          Int      @default(0)
-  accumulated        Int      @default(0)
-  referenceNumber    String?  @db.VarChar(255)
+  id                 Int                      @id @default(autoincrement())
+  gateway            String                   @db.VarChar(100)
+  transactionDate    DateTime                 @default(now())
+  accountNumber      String?                  @db.VarChar(100)
+  subAccount         String?                  @db.VarChar(250)
+  amountIn           Int                      @default(0)
+  amountOut          Int                      @default(0)
+  accumulated        Int                      @default(0)
+  referenceNumber    String?                  @db.VarChar(255)
   transactionContent String?
   body               String?
-  createdAt          DateTime @default(now())
+  createdAt          DateTime                 @default(now())
+  serviceRequestId   Int?                     @unique
+  status             PaymentTransactionStatus
+  userId             Int?
+  ServiceRequest     ServiceRequest?          @relation(fields: [serviceRequestId], references: [id])
 }
 
 model Review {
@@ -510,6 +479,7 @@ model Proposal {
   bookingId    Int            @unique
   notes        String?
   createdAt    DateTime       @default(now())
+  status       ProposalStatus @default(ACCEPTED)
   Booking      Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   ProposalItem ProposalItem[]
 }
@@ -519,10 +489,21 @@ model ProposalItem {
   proposalId Int
   serviceId  Int
   quantity   Int      @default(1)
-  price      Float
   createdAt  DateTime @default(now())
   Proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   Service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  balance       Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  accountHolder String?  @db.VarChar(255)
+  bankAccount   String?  @db.VarChar(100)
+  bankName      String?  @db.VarChar(255)
+  User          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum UserStatus {
@@ -629,4 +610,21 @@ enum ServiceStatus {
   PENDING
   REJECTED
   ACCEPTED
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+  EXPIRED
+  MANUAL_REVIEW
+}
+
+enum ProposalStatus {
+  ACCEPTED
+  REJECTED
+  PENDING
 }
