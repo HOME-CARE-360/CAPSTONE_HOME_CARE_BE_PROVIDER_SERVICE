@@ -358,6 +358,7 @@ export class ManageServicesRepository {
                     virtualPrice: true,
                     images: true,
                     durationMinutes: true,
+                    description: true,
                     publishedAt: true,
                     attachedItems: {
                         select: {
