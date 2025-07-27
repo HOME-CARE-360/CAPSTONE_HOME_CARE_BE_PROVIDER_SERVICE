@@ -143,8 +143,6 @@ export class ManageBookingsRepository {
                         create: body.services.map((item) => ({
                             serviceId: item.serviceId,
                             quantity: item.quantity,
-                            price: item.price,
-
                         })),
                     }
 
