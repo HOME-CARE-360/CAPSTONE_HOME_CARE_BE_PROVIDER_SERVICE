@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-    // output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -10,47 +9,49 @@ datasource db {
 }
 
 model User {
-  id                 Int               @id @default(autoincrement())
-  email              String            @unique
+  id                 Int                 @id @default(autoincrement())
+  email              String              @unique
   password           String
-  name               String            @db.VarChar(500)
-  phone              String            @db.VarChar(50)
-  avatar             String?           @db.VarChar(1000)
-  totpSecret         String?           @db.VarChar(1000)
-  status             UserStatus        @default(INACTIVE)
+  name               String              @db.VarChar(500)
+  phone              String              @db.VarChar(50)
+  avatar             String?             @db.VarChar(1000)
+  totpSecret         String?             @db.VarChar(1000)
+  status             UserStatus          @default(INACTIVE)
   createdById        Int?
   updatedById        Int?
   deletedById        Int?
   deletedAt          DateTime?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  createdCategories  Category[]        @relation("CategoryCreatedBy")
-  deletedCategories  Category[]        @relation("CategoryDeletedBy")
-  updatedCategories  Category[]        @relation("CategoryUpdatedBy")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  createdCategories  Category[]          @relation("CategoryCreatedBy")
+  deletedCategories  Category[]          @relation("CategoryDeletedBy")
+  updatedCategories  Category[]          @relation("CategoryUpdatedBy")
   customerProfile    CustomerProfile?
   devices            Device[]
   notifications      Notification[]
-  createdPermissions Permission[]      @relation("PermissionCreatedBy")
-  deletedPermissions Permission[]      @relation("PermissionDeletedBy")
-  updatedPermissions Permission[]      @relation("PermissionUpdatedBy")
+  createdPermissions Permission[]        @relation("PermissionCreatedBy")
+  deletedPermissions Permission[]        @relation("PermissionDeletedBy")
+  updatedPermissions Permission[]        @relation("PermissionUpdatedBy")
+  ProviderReport     ProviderReport[]
   refreshTokens      RefreshToken[]
-  createdRoles       Role[]            @relation("RoleCreatedBy")
-  deletedRoles       Role[]            @relation("RoleDeletedBy")
-  updatedRoles       Role[]            @relation("RoleUpdatedBy")
-  createdServices    Service[]         @relation("ServiceCreatedBy")
-  deletedServices    Service[]         @relation("ServiceDeletedBy")
-  updatedServices    Service[]         @relation("ServiceUpdatedBy")
+  createdRoles       Role[]              @relation("RoleCreatedBy")
+  deletedRoles       Role[]              @relation("RoleDeletedBy")
+  updatedRoles       Role[]              @relation("RoleUpdatedBy")
+  createdServices    Service[]           @relation("ServiceCreatedBy")
+  deletedServices    Service[]           @relation("ServiceDeletedBy")
+  updatedServices    Service[]           @relation("ServiceUpdatedBy")
   serviceProvider    ServiceProvider?
-  verifiedProviders  ServiceProvider[] @relation("VerifiedProviders")
+  verifiedProviders  ServiceProvider[]   @relation("VerifiedProviders")
   staff              Staff?
-  createdBy          User?             @relation("CreatorUsers", fields: [createdById], references: [id])
-  createdUsers       User[]            @relation("CreatorUsers")
-  deletedBy          User?             @relation("DeletorUsers", fields: [deletedById], references: [id])
-  deletedUsers       User[]            @relation("DeletorUsers")
-  updatedBy          User?             @relation("UpdatorUsers", fields: [updatedById], references: [id])
-  updatedUsers       User[]            @relation("UpdatorUsers")
+  createdBy          User?               @relation("CreatorUsers", fields: [createdById], references: [id])
+  createdUsers       User[]              @relation("CreatorUsers")
+  deletedBy          User?               @relation("DeletorUsers", fields: [deletedById], references: [id])
+  deletedUsers       User[]              @relation("DeletorUsers")
+  updatedBy          User?               @relation("UpdatorUsers", fields: [updatedById], references: [id])
+  updatedUsers       User[]              @relation("UpdatorUsers")
   Wallet             Wallet?
-  roles              Role[]            @relation("UserRoles")
+  WithdrawalRequest  WithdrawalRequest[]
+  roles              Role[]              @relation("UserRoles")
 
   @@index([deletedAt])
 }
@@ -168,6 +169,7 @@ model CustomerProfile {
   chatMessages           ChatMessage[]
   user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   packageRecommendations PackageRecommendation[]
+  ProviderReport         ProviderReport[]
   recurringBookings      RecurringBooking[]
   reviews                Review[]
   rewardPoints           RewardPoint[]
@@ -215,6 +217,7 @@ model ServiceProvider {
   verifiedAt          DateTime?
   verifiedById        Int?
   bookings            Booking[]
+  ProviderReport      ProviderReport[]
   services            Service[]
   serviceItems        ServiceItem[]
   user                User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -222,6 +225,7 @@ model ServiceProvider {
   translationsService ServiceProviderTranslation[]
   serviceRequests     ServiceRequest[]
   staff               Staff[]
+  WithdrawalRequest   WithdrawalRequest[]
 }
 
 model Category {
@@ -324,6 +328,7 @@ model Booking {
   staff            Staff?            @relation("StaffBooking", fields: [staffId], references: [id], onDelete: Cascade)
   inspectionReport InspectionReport?
   Proposal         Proposal?
+  ProviderReport   ProviderReport[]
   transaction      Transaction?
   workLogs         WorkLog[]
 }
@@ -506,6 +511,44 @@ model Wallet {
   User          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model ProviderReport {
+  id              Int             @id @default(autoincrement())
+  customerId      Int
+  providerId      Int
+  bookingId       Int
+  reason          String          @db.VarChar(255)
+  description     String?         @db.VarChar(2000)
+  imageUrls       String[]
+  status          ReportStatus    @default(PENDING)
+  createdAt       DateTime        @default(now())
+  reviewedAt      DateTime?
+  reviewedById    Int?
+  note            String?         @db.VarChar(1000)
+  Booking         Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  CustomerProfile CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  ServiceProvider ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  User            User?           @relation(fields: [reviewedById], references: [id])
+
+  @@index([customerId])
+  @@index([providerId])
+  @@index([status])
+}
+
+model WithdrawalRequest {
+  id              Int              @id @default(autoincrement())
+  providerId      Int
+  amount          Float
+  status          WithdrawalStatus @default(PENDING)
+  createdAt       DateTime         @default(now())
+  processedAt     DateTime?
+  processedById   Int?
+  note            String?          @db.VarChar(1000)
+  User            User?            @relation(fields: [processedById], references: [id])
+  ServiceProvider ServiceProvider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
 enum UserStatus {
   ACTIVE
   INACTIVE
@@ -627,4 +670,19 @@ enum ProposalStatus {
   ACCEPTED
   REJECTED
   PENDING
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
 }
