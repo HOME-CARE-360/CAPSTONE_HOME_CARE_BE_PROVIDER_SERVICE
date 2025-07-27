@@ -15,8 +15,8 @@ export class ManageFundingService {
     async getWithDrawDetail(id: number, providerId: number) {
         return await this.manageFundingRepository.getWithDrawDetail(id, providerId)
     }
-    async createWithdraw(body: CreateWithdrawBodyType) {
-        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(body.providerId), this.sharedWidthDrawRepository.findManyWithStatus()])
+    async createWithdraw(body: CreateWithdrawBodyType, providerId: number) {
+        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(providerId), this.sharedWidthDrawRepository.findManyWithStatus()])
 
         if (widthDraw.length > 0) {
             throw WithdrawRequestAlreadyProcessingException
@@ -24,6 +24,6 @@ export class ManageFundingService {
         if (wallet && (wallet.user.Wallet!.balance < body.amount)) {
             throw InsufficientBalanceException
         }
-        return await this.manageFundingRepository.createWithdraw(body)
+        return await this.manageFundingRepository.createWithdraw(body, providerId)
     }
 }

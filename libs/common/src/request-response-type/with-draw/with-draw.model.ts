@@ -19,8 +19,6 @@ export const UpdateWithDrawalBodySchema = WithdrawalRequestSchema.pick({
 })
 export const CreateWithdrawBodySchema = WithdrawalRequestSchema.pick({
     amount: true,
-    providerId: true,
-
 })
 export type CreateWithdrawBodyType = z.infer<typeof CreateWithdrawBodySchema>
 export type UpdateWithDrawalBodyType = z.infer<typeof UpdateWithDrawalBodySchema>

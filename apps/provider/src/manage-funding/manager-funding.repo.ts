@@ -78,10 +78,11 @@ export class ManageFundingRepository {
         };
 
     }
-    async createWithdraw(body: CreateWithdrawBodyType) {
+    async createWithdraw(body: CreateWithdrawBodyType, providerId: number) {
         return await this.prismaService.withdrawalRequest.create({
             data: {
                 ...body,
+                providerId,
                 status: WithdrawalStatus.PENDING,
                 createdAt: new Date()
             }
