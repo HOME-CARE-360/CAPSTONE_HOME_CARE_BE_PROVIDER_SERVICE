@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
-import { Prisma } from "@prisma/client"
-import { GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model"
+import { Prisma, WithdrawalStatus } from "@prisma/client"
+import { CreateWithdrawBodyType, GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
 
@@ -77,5 +77,14 @@ export class ManageFundingRepository {
             }
         };
 
+    }
+    async createWithdraw(body: CreateWithdrawBodyType) {
+        return await this.prismaService.withdrawalRequest.create({
+            data: {
+                ...body,
+                status: WithdrawalStatus.PENDING,
+                createdAt: new Date()
+            }
+        })
     }
 }

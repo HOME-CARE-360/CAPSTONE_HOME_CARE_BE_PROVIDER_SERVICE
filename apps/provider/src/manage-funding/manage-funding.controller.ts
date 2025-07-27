@@ -3,7 +3,7 @@ import { ManageFundingService } from "./manage-funding.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { ZodSerializerDto } from "nestjs-zod";
 import { MessageResDTO } from "libs/common/src/dtos/response.dto";
-import { GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model";
+import { CreateWithdrawBodyType, GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model";
 
 
 @Controller('manage-funding')
@@ -19,6 +19,12 @@ export class ManageFundingController {
   @ZodSerializerDto(MessageResDTO)
   async getWithDrawDetail(@Payload() { id, providerId }: { id: number, providerId: number, }) {
     return await this.manageFundingService.getWithDrawDetail(id, providerId)
+
+  }
+  @MessagePattern({ cmd: "create-withdraw-request" })
+  @ZodSerializerDto(MessageResDTO)
+  async createWithdrawRequest(@Payload() { data }: { data: CreateWithdrawBodyType }) {
+    return await this.manageFundingService.createWithdraw(data)
 
   }
 }

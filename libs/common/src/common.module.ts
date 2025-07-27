@@ -22,6 +22,7 @@ import { SharedServiceItemRepository } from './repositories/shared-service-item.
 import { SharedBookingRepository } from './repositories/shared-booking.repo';
 import { SharedServicesRepository } from './repositories/shared-service.repo';
 import { SharedProposalRepository } from './repositories/shared-proposed.repo';
+import { SharedWidthDrawRepository } from './repositories/share-withdraw.repo';
 const sharedServices = [
   PrismaService,
   HashingService,
@@ -40,7 +41,8 @@ const sharedServices = [
   SharedServiceItemRepository,
   SharedBookingRepository,
   SharedServicesRepository,
-  SharedProposalRepository
+  SharedProposalRepository,
+  SharedWidthDrawRepository
 ]
 
 @Global()
