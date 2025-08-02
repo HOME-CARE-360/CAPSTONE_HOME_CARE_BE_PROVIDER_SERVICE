@@ -60,4 +60,8 @@ export class ManageBookingsService {
         }
         return await this.manageBookingRepository.createProposed(body)
     }
+    async getServiceRequestDetail(serviceRequestId: number, providerId: number) {
+        if (!await this.bookingRepository.findUniqueServiceRequest({ id: serviceRequestId, providerId })) throw ServiceRequestNotFoundException
+        return await this.manageBookingRepository.getServiceRequestDetail(serviceRequestId)
+    }
 }
