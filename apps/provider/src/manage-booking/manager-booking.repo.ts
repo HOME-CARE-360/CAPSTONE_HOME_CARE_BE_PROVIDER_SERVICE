@@ -174,7 +174,7 @@ export class ManageBookingsRepository {
                 id: body.serviceRequestId
             },
             data: {
-                status: RequestStatus.IN_PROGRESS
+                status: RequestStatus.PENDING
             }
         }), this.prismaService.booking.update({
             where: {
