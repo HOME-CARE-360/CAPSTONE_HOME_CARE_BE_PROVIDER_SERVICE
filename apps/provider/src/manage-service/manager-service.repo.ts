@@ -57,7 +57,7 @@ export class ManageServicesRepository {
         limit,
         page,
         name,
-        categories,
+        categoryId,
         minPrice,
         maxPrice,
         isPublic,
@@ -68,13 +68,15 @@ export class ManageServicesRepository {
         limit: number
         page: number
         name?: string
-        categories?: number[]
+        categoryId?: number
         minPrice?: number
         maxPrice?: number
         isPublic?: boolean
         orderBy: OrderByType
         sortBy: SortByType, providerId: number
     }) {
+        console.log(categoryId);
+
         const skip = (page - 1) * limit
         const take = limit
         let where: Prisma.ServiceWhereInput = {
@@ -99,10 +101,8 @@ export class ManageServicesRepository {
             }
         }
 
-        if (categories && categories.length > 0) {
-            where.categoryId = {
-                in: categories
-            }
+        if (categoryId) {
+            where.categoryId = categoryId
         }
         if (minPrice !== undefined || maxPrice !== undefined) {
             where.virtualPrice = {

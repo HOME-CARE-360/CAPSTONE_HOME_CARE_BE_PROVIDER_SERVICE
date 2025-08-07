@@ -62,6 +62,8 @@ export class ManageServicesController {
   @MessagePattern({ cmd: "/list-service" })
   @ZodSerializerDto(GetServicesForProviderResDTO)
   list(@Payload() { query, providerID }: { query: GetServicesForProviderQueryDTO, providerID: number }) {
+    console.log(query);
+
     return this.manageServicesService.getListService({
       ...query, providerId: providerID
     })
