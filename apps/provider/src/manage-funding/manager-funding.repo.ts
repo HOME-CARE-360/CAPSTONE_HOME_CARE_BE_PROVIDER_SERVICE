@@ -13,7 +13,11 @@ export class ManageFundingRepository {
             providerId
         }
 
-
+        if (query.status) {
+            where.status = {
+                in: query.status
+            }
+        }
         return await this.prismaService.withdrawalRequest.findMany({
             where,
             orderBy: {
