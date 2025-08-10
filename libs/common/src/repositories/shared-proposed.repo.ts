@@ -12,6 +12,18 @@ export class SharedProposalRepository {
             select: { id: true }
         });
     }
+    async findUniqueId(proposalId: number, providerId: number) {
+        return await this.prismaService.proposal.findUnique({
+            where: {
+                id: proposalId,
+                Booking: {
+                    providerId
+                }
+
+            },
+            select: { id: true }
+        });
+    }
 
 
 

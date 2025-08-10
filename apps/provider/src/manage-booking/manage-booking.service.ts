@@ -5,13 +5,13 @@ import { ShareStaffRepository } from "libs/common/src/repositories/shared-staff.
 import { SharedProviderRepository } from "libs/common/src/repositories/share-provider.repo"
 import { StaffNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-staff.error"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
-import { CreateProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
+import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
 import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
 import { InvalidServiceIdException } from "libs/common/src/errors/share-service.error"
 import { SharedProposalRepository } from "libs/common/src/repositories/shared-proposed.repo"
-import { ProposalAlreadyExistsException } from "libs/common/src/errors/shared-proposal.error"
+import { ProposalAlreadyExistsException, ProposalNotFoundException } from "libs/common/src/errors/shared-proposal.error"
 
 @Injectable()
 export class ManageBookingsService {
@@ -63,5 +63,20 @@ export class ManageBookingsService {
     async getServiceRequestDetail(serviceRequestId: number, providerId: number) {
         if (!await this.bookingRepository.findUniqueServiceRequest({ id: serviceRequestId, providerId })) throw ServiceRequestNotFoundException
         return await this.manageBookingRepository.getServiceRequestDetail(serviceRequestId)
+    }
+    async editProposed(body: EditProposedServiceType, providerId: number) {
+        const [services, proposal] = await Promise.all([
+            this.serviceRepository.findUnique(body.services.map((item) => item.serviceId)),
+            this.proposalRepository.findUniqueId(body.proposalId, providerId)])
+
+        if (!proposal) {
+            throw ProposalNotFoundException
+        }
+        const foundIds = services.map((s) => s.id);
+        const notFound = body.services.filter((item) => !foundIds.includes(item.serviceId))
+        if (notFound.length > 0) {
+            throw InvalidServiceIdException(notFound.map((item) => item.serviceId))
+        }
+        return await this.manageBookingRepository.editProposed(body)
     }
 }

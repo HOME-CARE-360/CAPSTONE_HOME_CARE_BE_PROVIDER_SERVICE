@@ -4,7 +4,7 @@ import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
-import { CreateProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
+import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
 
@@ -237,5 +237,22 @@ export class ManageBookingsRepository {
 
 
     }
+    async editProposed(body: EditProposedServiceType) {
+        const { proposalId, ...rest } = body
+        return await this.prismaService.proposal.update({
+            where: {
+                id: proposalId
+            },
+            data: {
+                notes: rest.notes,
+                ProposalItem: {
+                    create: rest.services.map((item) => ({
+                        serviceId: item.serviceId,
+                        quantity: item.quantity,
+                    })),
+                }
+            }
+        })
 
+    }
 }
