@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { BookingStatus, Prisma, RequestStatus } from "@prisma/client"
+import { BookingStatus, Prisma, ProposalStatus, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
@@ -220,6 +220,7 @@ export class ManageBookingsRepository {
             })
             await tx.proposal.create({
                 data: {
+                    status: ProposalStatus.PENDING,
                     notes: body.notes,
                     bookingId: body.bookingId,
 
