@@ -22,6 +22,7 @@ export class ManageServicesController {
       message: "Create service successfully"
     }
   }
+
   @MessagePattern({ cmd: "create-service-item" })
 
   @ZodSerializerDto(CreateServicesBodyDTO)
@@ -32,6 +33,7 @@ export class ManageServicesController {
       message: "Create service item successfully"
     }
   }
+
   @MessagePattern({ cmd: "update-service-item" })
 
   @ZodSerializerDto(CreateServicesBodyDTO)

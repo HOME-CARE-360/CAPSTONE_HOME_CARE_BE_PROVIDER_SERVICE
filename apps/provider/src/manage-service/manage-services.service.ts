@@ -28,6 +28,7 @@ export class ManageServicesService {
         if ((await this.categoryRepository.findUnique([data.categoryId])).length < 0) throw InvalidCategoryIdException([data.categoryId])
         return await this.servicesRepository.createService(data, userId, providerId)
     }
+
     async getListService(data: GetServicesForProviderQueryType & { providerId: number }) {
         return await this.servicesRepository.listForProvider(data)
 
@@ -40,7 +41,7 @@ export class ManageServicesService {
     }
     async updateService(data: UpdateServiceBodyType, userId: number, providerId: number, roles: Pick<RoleType, "id" | "name">[]) {
         await this.servicesRepository.serviceBelongProvider(data.id, providerId, roles)
-        if ((await this.categoryRepository.findUnique([data.categoryId])).length < 0) throw InvalidCategoryIdException([data.categoryId])
+        if (data.categoryId && (await this.categoryRepository.findUnique([data.categoryId])).length < 0) throw InvalidCategoryIdException([data.categoryId])
 
         return await this.servicesRepository.updateServices(data, userId)
     }

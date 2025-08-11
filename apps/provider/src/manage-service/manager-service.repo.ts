@@ -53,6 +53,37 @@ export class ManageServicesRepository {
         }
         return
     }
+    async updateService(body: UpdateServiceBodyType, userId: number, providerId: number) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { serviceItemsId, id, ...rest } = body
+        const createdService = await this.prismaService.service.update({
+            where: {
+                id
+            },
+
+            data: {
+                ...rest,
+                providerId: providerId,
+                createdById: userId,
+                updatedById: userId,
+
+
+            }
+        })
+
+
+        console.log(createdService);
+
+        if (serviceItemsId && serviceItemsId.length > 0) {
+            await this.prismaService.service_ServiceItems.createMany({
+                data: serviceItemsId.map((itemId) => ({
+                    serviceId: createdService.id,
+                    serviceItemId: itemId,
+                })),
+            });
+        }
+        return
+    }
     async listForProvider({
         limit,
         page,

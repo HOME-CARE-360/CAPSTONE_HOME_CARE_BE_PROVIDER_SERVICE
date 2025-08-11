@@ -21,6 +21,7 @@ export const CreateServiceBodySchema = ServiceBodyPrototype.strict().refine(data
     message: 'Virtual price must be less than base price',
     path: ['virtualPrice'],
 })
+
 export const GetServicesResSchema = z.object({
     data: z.array(
         ServiceSchema.omit({ updatedAt: true, deletedAt: true, publishedAt: true, createdById: true, deletedById: true, updatedById: true, createdAt: true, })
@@ -76,9 +77,21 @@ export const GetServiceParamsSchema = z
     })
     .strict()
 
-export const UpdateServiceBodySchema = ServiceBodyPrototype.merge(ServiceSchema.pick({
-    id: true
-}))
+export const UpdateServiceBodySchema = ServiceBodyPrototype.partial()
+    .merge(ServiceSchema.pick({
+        id: true,
+    }))
+    .strict()
+    .refine(
+        (data) =>
+            data.virtualPrice === undefined ||
+            data.basePrice === undefined ||
+            data.virtualPrice < data.basePrice,
+        {
+            message: 'Virtual price must be less than base price',
+            path: ['virtualPrice'],
+        },
+    );
 
 export type CreateServiceType = z.infer<typeof CreateServiceBodySchema>
 export type GetServicesResType = z.infer<typeof GetServicesResSchema>
