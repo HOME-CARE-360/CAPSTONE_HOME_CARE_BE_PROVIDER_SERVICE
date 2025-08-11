@@ -12,11 +12,13 @@ export class ManageStaffRepository {
         const caculatedOrderBy: Prisma.StaffOrderByWithRelationInput = {
             [sortBy]: orderBy,
 
+
         }
         const skip = (page - 1) * limit
         const take = limit
         const where: Prisma.StaffWhereInput = {
             providerId: providerId,
+            isActive: true,
             OR: [
                 {
                     booking: {
@@ -87,4 +89,5 @@ export class ManageStaffRepository {
             totalPages: Math.ceil(totalItems / limit),
         }
     }
+
 }
