@@ -80,8 +80,10 @@ export class ManageServicesController {
   }
   @MessagePattern({ cmd: "/delete-service" })
   @ZodSerializerDto(UpdateServicesBodyDTO)
-  async deleteService(@Payload() { serviceID, user }: { serviceID: DeleteServicesParamDTO, user: AccessTokenPayload }) {
-    const data = await this.manageServicesService.deleteService(serviceID.serviceId, user.userId, user.providerId as number, user.roles)
+  async deleteService(@Payload() { param, user }: { param: DeleteServicesParamDTO, user: AccessTokenPayload }) {
+    console.log(param, user);
+
+    const data = await this.manageServicesService.deleteService(param.serviceId, user.userId, user.providerId as number, user.roles)
     return {
       message: `Delete service ${data.name} with id:${data.id} successfully`
     }
