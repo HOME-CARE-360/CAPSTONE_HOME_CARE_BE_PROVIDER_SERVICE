@@ -122,6 +122,7 @@ export class ManageBookingsRepository {
                                     include: {
                                         Service: {
                                             select: {
+                                                virtualPrice: true,
                                                 basePrice: true,
                                                 description: true,
                                                 name: true,
