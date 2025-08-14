@@ -169,20 +169,13 @@ export class ManageBookingsRepository {
 
     async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType) {
 
-        return await Promise.all([this.prismaService.serviceRequest.update({
-            where: {
-                id: body.serviceRequestId
-            },
-            data: {
-                status: RequestStatus.PENDING
-            }
-        }), this.prismaService.booking.update({
+        return await this.prismaService.booking.update({
             where: {
                 serviceRequestId: body.serviceRequestId
             }, data: {
                 staffId: body.staffId
             }
-        })])
+        })
 
 
     }

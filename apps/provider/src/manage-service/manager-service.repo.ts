@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { Prisma } from "@prisma/client"
+import { Prisma, ServiceStatus } from "@prisma/client"
 import { isNotFoundPrismaError } from "libs/common/helpers"
 import { OrderByType, SortBy, SortByType } from "libs/common/src/constants/others.constant"
 import { RoleName } from "libs/common/src/constants/role.constant"
@@ -278,6 +278,7 @@ export class ManageServicesRepository {
             const updatedService = await tx.service.update({
                 where: { id },
                 data: {
+                    status: ServiceStatus.PENDING,
                     ...rest,
                     updatedById: userId,
                     categoryId,
