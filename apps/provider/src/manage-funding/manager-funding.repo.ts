@@ -8,9 +8,9 @@ import { PrismaService } from "libs/common/src/services/prisma.service"
 @Injectable()
 export class ManageFundingRepository {
     constructor(private readonly prismaService: PrismaService) { }
-    async getListWithDraw(providerId: number, query: GetListWidthDrawQueryType) {
+    async getListWithDraw(userId: number, query: GetListWidthDrawQueryType) {
         const where: Prisma.WithdrawalRequestWhereInput = {
-            providerId
+            userId
         }
 
         if (query.status) {
@@ -29,9 +29,10 @@ export class ManageFundingRepository {
 
         })
     }
-    async getWithDrawDetail(id: number, providerId: number) {
+    async getWithDrawDetail(id: number, userId: number) {
+
         const data = await this.prismaService.withdrawalRequest.findUnique({
-            where: { id, providerId },
+            where: { id, userId },
             select: {
                 id: true,
                 amount: true,
@@ -39,54 +40,30 @@ export class ManageFundingRepository {
                 createdAt: true,
                 processedAt: true,
                 note: true,
-
-                ServiceProvider: {
+                User: {
                     select: {
-                        address: true,
-                        description: true, companyType: true,
-                        logo: true,
-                        industry: true,
-                        licenseNo: true,
-                        taxId: true,
-
-                        user: {
-                            select: {
-                                name: true,
-                                phone: true,
-                                email: true,
-                                Wallet: {
-                                    select: {
-                                        bankAccount: true,
-                                        bankName: true,
-                                        accountHolder: true
-                                    }
-                                }
-                            }
-                        }
+                        name: true,
+                        phone: true,
+                        email: true,
+                        avatar: true,
                     }
+
                 }
+
             }
         });
         if (!data) return null;
 
 
-        const { ServiceProvider, ...rest } = data;
-        const { user, ...providerFields } = ServiceProvider;
 
-        return {
-            ...rest,
-            ServiceProvider: {
-                ...providerFields,
-                ...user
-            }
-        };
 
+        return data
     }
-    async createWithdraw(body: CreateWithdrawBodyType, providerId: number) {
+    async createWithdraw(body: CreateWithdrawBodyType, userId: number) {
         return await this.prismaService.withdrawalRequest.create({
             data: {
                 ...body,
-                providerId,
+                userId,
                 status: WithdrawalStatus.PENDING,
                 createdAt: new Date()
             }

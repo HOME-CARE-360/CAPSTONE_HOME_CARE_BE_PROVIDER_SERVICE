@@ -28,16 +28,16 @@ export class SharedWidthDrawRepository {
             }
         })
     }
-    async findWalletBalance(providerId: number) {
-        return await this.prismaService.serviceProvider.findUnique({
+    async findWalletBalance(userId: number) {
+        return await this.prismaService.user.findUnique({
             where: {
-                id: providerId
+                id: userId
             }, include: {
-                user: {
-                    include: {
-                        Wallet: true
-                    }
-                }
+
+
+                Wallet: true
+
+
             }
         })
     }

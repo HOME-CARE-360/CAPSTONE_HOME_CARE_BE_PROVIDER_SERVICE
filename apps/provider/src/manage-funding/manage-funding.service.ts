@@ -9,21 +9,22 @@ export class ManageFundingService {
     constructor(private readonly manageFundingRepository: ManageFundingRepository, private readonly sharedWidthDrawRepository: SharedWidthDrawRepository) {
 
     }
-    async getListWithDraw(query: GetListWidthDrawQueryType, providerId: number) {
-        return await this.manageFundingRepository.getListWithDraw(providerId, query)
+    async getListWithDraw(query: GetListWidthDrawQueryType, userId: number) {
+        return await this.manageFundingRepository.getListWithDraw(userId, query)
     }
-    async getWithDrawDetail(id: number, providerId: number) {
-        return await this.manageFundingRepository.getWithDrawDetail(id, providerId)
+    async getWithDrawDetail(id: number, userId: number) {
+
+        return await this.manageFundingRepository.getWithDrawDetail(id, userId)
     }
-    async createWithdraw(body: CreateWithdrawBodyType, providerId: number) {
-        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(providerId), this.sharedWidthDrawRepository.findManyWithStatus()])
+    async createWithdraw(body: CreateWithdrawBodyType, userId: number) {
+        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(userId), this.sharedWidthDrawRepository.findManyWithStatus()])
 
         if (widthDraw.length > 0) {
             throw WithdrawRequestAlreadyProcessingException
         }
-        if (wallet && (wallet.user.Wallet!.balance < body.amount)) {
+        if (wallet && (wallet.Wallet!.balance < body.amount)) {
             throw InsufficientBalanceException
         }
-        return await this.manageFundingRepository.createWithdraw(body, providerId)
+        return await this.manageFundingRepository.createWithdraw(body, userId)
     }
 }
