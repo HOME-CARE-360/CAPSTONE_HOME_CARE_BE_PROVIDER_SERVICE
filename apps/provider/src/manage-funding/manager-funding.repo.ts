@@ -21,7 +21,7 @@ export class ManageFundingRepository {
         return await this.prismaService.withdrawalRequest.findMany({
             where,
             orderBy: {
-                [query.sortBy]: query.sortBy
+                [query.sortBy]: query.orderBy
             }
             ,
             skip: (query.page - 1) * query.limit,
