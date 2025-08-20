@@ -239,6 +239,7 @@ export class ManageBookingsRepository {
                 id: proposalId
             },
             data: {
+                status: ProposalStatus.PENDING,
                 notes: rest.notes,
                 ProposalItem: {
                     create: rest.services.map((item) => ({

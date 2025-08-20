@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  // output        = "../node_modules/.prisma/client"
+//  output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -170,6 +170,7 @@ model CustomerProfile {
   bookings               Booking[]
   chatMessages           ChatMessage[]
   Conversation           Conversation[]
+  CustomerAsset          CustomerAsset[]
   user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   FavoriteService        FavoriteService[]
   packageRecommendations PackageRecommendation[]
@@ -222,6 +223,7 @@ model ServiceProvider {
   bookings            Booking[]
   Conversation        Conversation[]
   ProviderReport      ProviderReport[]
+  Review              Review[]
   services            Service[]
   serviceItems        ServiceItem[]
   user                User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -248,6 +250,7 @@ model Category {
   childrenCategories        Category[]                  @relation("ParentCategoryCategories")
   updatedBy                 User?                       @relation("CategoryUpdatedBy", fields: [updatedById], references: [id])
   translations              CategoryTranslation[]
+  CustomerAsset             CustomerAsset[]
   services                  Service[]
   serviceRequests           ServiceRequest[]
   staffCategories           StaffCategory[]
@@ -278,6 +281,7 @@ model Service {
   FavoriteService   FavoriteService[]
   ProposalItem      ProposalItem[]
   recurringBookings RecurringBooking[]
+  Review            Review[]
   category          Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdBy         User?                  @relation("ServiceCreatedBy", fields: [createdById], references: [id])
   deletedBy         User?                  @relation("ServiceDeletedBy", fields: [deletedById], references: [id])
@@ -334,6 +338,7 @@ model Booking {
   inspectionReport InspectionReport?
   Proposal         Proposal?
   ProviderReport   ProviderReport[]
+  Review           Review?
   transaction      Transaction?
   workLogs         WorkLog[]
 }
@@ -408,13 +413,26 @@ model PaymentTransaction {
 }
 
 model Review {
-  id         Int             @id @default(autoincrement())
-  customerId Int
-  rating     Int
-  comment    String
-  createdAt  DateTime        @default(now())
-  bookingId  Int?
-  customer   CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id              Int             @id @default(autoincrement())
+  customerId      Int
+  rating          Int             @db.SmallInt
+  comment         String?         @db.VarChar(1000)
+  createdAt       DateTime        @default(now())
+  bookingId       Int             @unique
+  deletedAt       DateTime?
+  images          String[]        @default([])
+  isEdited        Boolean         @default(false)
+  providerId      Int
+  serviceId       Int?
+  updatedAt       DateTime
+  Booking         Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer        CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  ServiceProvider ServiceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  Service         Service?        @relation(fields: [serviceId], references: [id])
+
+  @@index([customerId, createdAt])
+  @@index([providerId, createdAt])
+  @@index([serviceId, createdAt])
 }
 
 model Notification {
@@ -610,6 +628,27 @@ model suggested_services_config {
   created_at                DateTime? @default(now()) @db.Timestamp(6)
   updated_at                DateTime? @default(now()) @db.Timestamp(6)
   Category                  Category  @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model CustomerAsset {
+  id                    Int             @id @default(autoincrement())
+  customerId            Int
+  categoryId            Int
+  brand                 String?         @db.VarChar(255)
+  model                 String?         @db.VarChar(255)
+  serial                String?         @db.VarChar(255)
+  purchaseDate          DateTime?       @db.Timestamp(6)
+  nickname              String?         @db.VarChar(255)
+  lastMaintenanceDate   DateTime?       @db.Timestamp(6)
+  totalMaintenanceCount Int?            @default(0)
+  createdAt             DateTime?       @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime?       @default(now()) @db.Timestamp(6)
+  Category              Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asset_category")
+  CustomerProfile       CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asset_customer")
+
+  @@index([brand, model], map: "idx_asset_brand_model")
+  @@index([categoryId], map: "idx_asset_category")
+  @@index([customerId], map: "idx_asset_customer")
 }
 
 enum UserStatus {
