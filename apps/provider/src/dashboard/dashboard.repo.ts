@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { BookingStatus, PaymentStatus, WithdrawalStatus } from "@prisma/client";
-import { DashboardParamsType } from "libs/common/src/request-response-type/provider/dashboard/dashboard.model";
+import { GetProviderStatsQueryType } from "libs/common/src/request-response-type/provider/dashboard/dashboard.model";
 import { PrismaService } from "libs/common/src/services/prisma.service";
 type SeriesPoint = { bucket: string; value: number };
 
@@ -190,12 +190,15 @@ export class DashboardRepository {
         }));
     }
 
-    async getProviderStats(providerId: number, params: DashboardParamsType) {
+    async getProviderStats(providerId: number, params: GetProviderStatsQueryType) {
+
         const [sum, ser, top] = await Promise.all([
             this.summary(providerId, params.startDate, params.endDate),
             this.series(providerId, params.granularity ?? 'day', params.startDate, params.endDate),
             this.topServices(providerId, params.startDate, params.endDate, 10),
         ]);
+        console.log({ ...sum, series: ser, topServices: top });
+
         return { ...sum, series: ser, topServices: top };
     }
 
