@@ -116,11 +116,15 @@ export class ManageBookingsRepository {
                             }
                         },
                         Proposal: {
+
                             omit: { bookingId: true },
                             include: {
+
                                 ProposalItem: {
+
                                     include: {
                                         Service: {
+
                                             select: {
                                                 virtualPrice: true,
                                                 basePrice: true,
@@ -129,7 +133,11 @@ export class ManageBookingsRepository {
                                                 images: true,
                                                 durationMinutes: true,
                                                 category: true,
-                                                attachedItems: true
+                                                attachedItems: {
+                                                    include: {
+                                                        serviceItem: true
+                                                    }
+                                                }
                                             }
                                         }
                                     }

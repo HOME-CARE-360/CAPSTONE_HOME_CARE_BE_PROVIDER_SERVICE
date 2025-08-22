@@ -11,9 +11,6 @@ export class ManageBookingsController {
   @Get("get-request-service")
   @MessagePattern({ cmd: "get-request-service" })
   async getRequestService(@Body() { data, providerID }: { data: GetServicesRequestQueryType, providerID: number }) {
-    console.log("hi");
-
-    console.log(data, providerID);
 
     return await this.manageBookingService.getListServiceRequest(data, providerID)
   }
