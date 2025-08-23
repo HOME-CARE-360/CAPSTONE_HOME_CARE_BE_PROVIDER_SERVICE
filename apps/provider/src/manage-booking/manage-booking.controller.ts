@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, } from "@nestjs/common";
 import { ManageBookingsService } from "./manage-booking.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
-import { AssignStaffToBookingBodySchemaType, CancelServiceRequestBodySchema, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
+import { AssignStaffToBookingBodySchemaType, CancelServiceRequestBodySchema, CreateBookingReportBodyType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model";
 
 
@@ -55,6 +55,10 @@ export class ManageBookingsController {
     return {
       message: "Edit proposed successfully"
     }
+  }
+  @MessagePattern("cancel-booking")
+  async cancelBooking(@Payload() { body, userId }: { userId: number, body: CreateBookingReportBodyType }) {
+    await this.manageBookingService.cancelAndReportBooking(body, userId)
   }
 
 }

@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common"
-import { BookingStatus, Prisma, ProposalStatus, RequestStatus } from "@prisma/client"
+import { BookingStatus, Prisma, ProposalStatus, ReportStatus, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
-import { AssignStaffToBookingBodySchemaType } from "libs/common/src/request-response-type/bookings/booking.model"
+import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, } from "libs/common/src/request-response-type/bookings/booking.model"
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -174,6 +174,19 @@ export class ManageBookingsRepository {
                 ...user
             }
         };
+    }
+    async reportAndCancelBooking(body: CreateBookingReportBodyType, userId: number) {
+        await this.prismaService.booking.update({
+            where: {
+                id: body.bookingId
+            },
+            data: {
+                status: BookingStatus.CANCELLED
+            }
+        })
+        return await this.prismaService.bookingReport.create({
+            data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
+        })
     }
 
     async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType) {

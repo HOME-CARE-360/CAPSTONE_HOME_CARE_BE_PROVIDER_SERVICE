@@ -16,9 +16,10 @@ export class SharedWidthDrawRepository {
     async findMany() {
         return await this.prismaService.withdrawalRequest.findMany()
     }
-    async findManyWithStatus() {
+    async findManyWithStatus(userId: number) {
         return await this.prismaService.withdrawalRequest.findMany({
             where: {
+                userId,
                 status: {
                     not: {
 

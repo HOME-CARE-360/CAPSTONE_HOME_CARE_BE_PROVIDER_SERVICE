@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { ManageBookingsRepository } from "./manager-booking.repo"
-import { AssignStaffToBookingBodySchemaType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model"
+import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model"
 import { ShareStaffRepository } from "libs/common/src/repositories/shared-staff.repo"
 import { SharedProviderRepository } from "libs/common/src/repositories/share-provider.repo"
 import { StaffNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-staff.error"
@@ -78,5 +78,10 @@ export class ManageBookingsService {
             throw InvalidServiceIdException(notFound.map((item) => item.serviceId))
         }
         return await this.manageBookingRepository.editProposed(body)
+    }
+    async cancelAndReportBooking(body: CreateBookingReportBodyType, userId: number) {
+        const booking = await this.bookingRepository.findUnique({ id: body.bookingId })
+        if (!booking) throw BookingNotFoundOrNotBelongToProviderException
+        return await this.manageBookingRepository.reportAndCancelBooking(body, userId)
     }
 }

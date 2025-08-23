@@ -17,7 +17,7 @@ export class ManageFundingService {
         return await this.manageFundingRepository.getWithDrawDetail(id, userId)
     }
     async createWithdraw(body: CreateWithdrawBodyType, userId: number) {
-        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(userId), this.sharedWidthDrawRepository.findManyWithStatus()])
+        const [wallet, widthDraw] = await Promise.all([this.sharedWidthDrawRepository.findWalletBalance(userId), this.sharedWidthDrawRepository.findManyWithStatus(userId)])
 
         if (widthDraw.length > 0) {
             throw WithdrawRequestAlreadyProcessingException
