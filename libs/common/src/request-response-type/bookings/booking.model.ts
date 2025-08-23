@@ -49,6 +49,15 @@ export const CreateBookingReportBodySchema = BookingReportSchema.pick({
     bookingId: true,
 
 })
+export const UpdateBookingReportBodySchema = BookingReportSchema.pick({
+    id: true,
+    description: true,
+    imageUrls: true,
+    note: true,
+    reporterType: true,
+    reason: true,
+
+})
 
 export const UpdateProviderReportBodySchema = z.object({
     reason: z.string().max(255).optional(),
@@ -62,7 +71,7 @@ export const ReviewProviderReportBodySchema = z.object({
     note: z.string().max(1000).optional(),
 })
 
-export const GetProviderReportsQuerySchema = z.object({
+export const GetBookingReportsQuerySchema = z.object({
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().default(10),
     status: z.nativeEnum(ReportStatus).optional(),
@@ -76,7 +85,8 @@ export const GetProviderReportsQuerySchema = z.object({
 export type CreateBookingReportBodyType = z.infer<typeof CreateBookingReportBodySchema>
 export type UpdateProviderReportBodyType = z.infer<typeof UpdateProviderReportBodySchema>
 export type ReviewProviderReportBodyType = z.infer<typeof ReviewProviderReportBodySchema>
-export type GetProviderReportsQueryType = z.infer<typeof GetProviderReportsQuerySchema>
+export type GetBookingReportsQueryType = z.infer<typeof GetBookingReportsQuerySchema>
+export type UpdateBookingReportBodyType = z.infer<typeof UpdateBookingReportBodySchema>
 
 export type CancelServiceRequestBodySchema = z.infer<typeof CancelServiceRequestBodySchema>
 export type CreateBookingBodyType = z.infer<typeof CreateBookingBodySchema>

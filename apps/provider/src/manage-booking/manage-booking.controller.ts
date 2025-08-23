@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, } from "@nestjs/common";
 import { ManageBookingsService } from "./manage-booking.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
-import { AssignStaffToBookingBodySchemaType, CancelServiceRequestBodySchema, CreateBookingReportBodyType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model";
+import { AssignStaffToBookingBodySchemaType, CancelServiceRequestBodySchema, CreateBookingReportBodyType, GetBookingReportsQueryType, GetServicesRequestQueryType, UpdateBookingReportBodyType } from "libs/common/src/request-response-type/bookings/booking.model";
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model";
 
 
@@ -59,6 +59,14 @@ export class ManageBookingsController {
   @MessagePattern("cancel-booking")
   async cancelBooking(@Payload() { body, userId }: { userId: number, body: CreateBookingReportBodyType }) {
     await this.manageBookingService.cancelAndReportBooking(body, userId)
+  }
+  @MessagePattern("update-cancel-booking")
+  async updateCancelBooking(@Payload() { body, userId }: { body: UpdateBookingReportBodyType, userId: number }) {
+    await this.manageBookingService.updateReportBooking(body, userId)
+  }
+  @MessagePattern("get-list-cancel-booking")
+  async getListCancelBooking(@Payload() { query, userId }: { query: GetBookingReportsQueryType, userId: number }) {
+    await this.manageBookingService.getListReportBooking(query, userId)
   }
 
 }

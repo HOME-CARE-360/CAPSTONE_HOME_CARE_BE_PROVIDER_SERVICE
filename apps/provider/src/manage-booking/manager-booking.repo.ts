@@ -3,7 +3,7 @@ import { BookingStatus, Prisma, ProposalStatus, ReportStatus, RequestStatus } fr
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
-import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, } from "libs/common/src/request-response-type/bookings/booking.model"
+import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetBookingReportsQueryType, UpdateBookingReportBodyType, } from "libs/common/src/request-response-type/bookings/booking.model"
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -188,7 +188,15 @@ export class ManageBookingsRepository {
             data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
         })
     }
-
+    async updateReportBooking(body: UpdateBookingReportBodyType) {
+        const { id, ...rest } = body
+        return await this.prismaService.bookingReport.update({
+            where: {
+                id: id
+            },
+            data: { ...rest, status: ReportStatus.PENDING }
+        })
+    }
     async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType) {
 
         return await this.prismaService.booking.update({
@@ -200,6 +208,33 @@ export class ManageBookingsRepository {
         })
 
 
+    }
+    async getListReportBooking(query: GetBookingReportsQueryType, userId: number) {
+        const where: Prisma.BookingReportWhereInput = {
+            reporterId: userId
+        }
+        const skip = (query.page - 1) * query.limit;
+        const take = query.limit;
+        if (query.status) {
+            where.status = query.status
+        }
+        const [data, totalItems] = await Promise.all([
+            this.prismaService.bookingReport.findMany({
+                where,
+                orderBy: { [query.sortBy]: query.orderBy },
+                skip,
+                take,
+            }),
+            this.prismaService.bookingReport.count({ where })
+
+        ]);
+        return {
+            data,
+            totalItems,
+            page: query.page,
+            limit: query.limit,
+            totalPages: Math.ceil(totalItems / query.limit),
+        };
     }
     async cancelRequestService(serviceRequestId: number) {
         return await this.prismaService.$transaction(async (tx) => {

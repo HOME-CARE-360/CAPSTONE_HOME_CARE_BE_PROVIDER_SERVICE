@@ -15,6 +15,15 @@ export const BookingNotFoundOrNotBelongToProviderException = new RpcException(
             },
         ])
 );
+export const BookingReportNotFoundOrNotBelongToProviderException = new RpcException(
+    new NotFoundException(
+        [
+            {
+                message: 'Error.BookingReportNotFoundOrNotBelongToProvider',
+                path: ['bookingId'],
+            },
+        ])
+);
 export const ServiceRequestNotFoundOrNotBelongToProviderException = new RpcException(
     new NotFoundException(
         [

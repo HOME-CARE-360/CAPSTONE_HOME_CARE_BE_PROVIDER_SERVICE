@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { ManageBookingsRepository } from "./manager-booking.repo"
-import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetServicesRequestQueryType } from "libs/common/src/request-response-type/bookings/booking.model"
+import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetBookingReportsQueryType, GetServicesRequestQueryType, UpdateBookingReportBodyType } from "libs/common/src/request-response-type/bookings/booking.model"
 import { ShareStaffRepository } from "libs/common/src/repositories/shared-staff.repo"
 import { SharedProviderRepository } from "libs/common/src/repositories/share-provider.repo"
 import { StaffNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-staff.error"
@@ -8,7 +8,7 @@ import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-pr
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
-import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
+import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException, BookingReportNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
 import { InvalidServiceIdException } from "libs/common/src/errors/share-service.error"
 import { SharedProposalRepository } from "libs/common/src/repositories/shared-proposed.repo"
 import { ProposalAlreadyExistsException, ProposalNotFoundException } from "libs/common/src/errors/shared-proposal.error"
@@ -83,5 +83,13 @@ export class ManageBookingsService {
         const booking = await this.bookingRepository.findUnique({ id: body.bookingId })
         if (!booking) throw BookingNotFoundOrNotBelongToProviderException
         return await this.manageBookingRepository.reportAndCancelBooking(body, userId)
+    }
+    async updateReportBooking(body: UpdateBookingReportBodyType, userId: number) {
+        if (!await this.bookingRepository.findUniqueReportBelongToProvider(body.id, userId)) throw BookingReportNotFoundOrNotBelongToProviderException
+        return await this.manageBookingRepository.updateReportBooking(body)
+    }
+    async getListReportBooking(query: GetBookingReportsQueryType, userId: number) {
+
+        return await this.manageBookingRepository.getListReportBooking(query, userId)
     }
 }

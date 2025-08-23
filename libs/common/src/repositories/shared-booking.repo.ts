@@ -36,6 +36,14 @@ export class SharedBookingRepository {
             }
         })
     }
+    async findUniqueReportBelongToProvider(id: number, userId: number) {
+        return await this.prismaService.bookingReport.findUnique({
+            where: {
+                id,
+                reporterId: userId
 
+            }
+        })
+    }
 
 }

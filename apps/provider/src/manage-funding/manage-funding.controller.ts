@@ -22,11 +22,8 @@ export class ManageFundingController {
 
   }
   @MessagePattern({ cmd: "create-withdraw-request" })
-
   @ZodSerializerDto(MessageResDTO)
   async createWithdrawRequest(@Payload() { data, userId }: { data: CreateWithdrawBodyType, userId: number }) {
-    console.log(data, userId);
-
     return await this.manageFundingService.createWithdraw(data, userId)
 
   }
