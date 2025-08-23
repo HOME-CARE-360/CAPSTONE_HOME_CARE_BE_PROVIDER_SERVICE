@@ -48,6 +48,7 @@ export class ManageBookingsController {
       message: "Cancel service request successfully"
     }
   }
+
   @MessagePattern({ cmd: "edit-proposed" })
   async editProposed(@Payload() { data, providerID }: { data: EditProposedServiceType, providerID: number }) {
     await this.manageBookingService.editProposed(data, providerID)
@@ -56,15 +57,15 @@ export class ManageBookingsController {
       message: "Edit proposed successfully"
     }
   }
-  @MessagePattern("cancel-booking")
+  @MessagePattern("report-booking")
   async cancelBooking(@Payload() { body, userId }: { userId: number, body: CreateBookingReportBodyType }) {
     await this.manageBookingService.cancelAndReportBooking(body, userId)
   }
-  @MessagePattern("update-cancel-booking")
+  @MessagePattern("update-report-booking")
   async updateCancelBooking(@Payload() { body, userId }: { body: UpdateBookingReportBodyType, userId: number }) {
     await this.manageBookingService.updateReportBooking(body, userId)
   }
-  @MessagePattern("get-list-cancel-booking")
+  @MessagePattern("get-list-report")
   async getListCancelBooking(@Payload() { query, userId }: { query: GetBookingReportsQueryType, userId: number }) {
     await this.manageBookingService.getListReportBooking(query, userId)
   }

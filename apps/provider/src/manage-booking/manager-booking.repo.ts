@@ -252,7 +252,6 @@ export class ManageBookingsRepository {
         });
     }
     async createProposed(body: CreateProposedServiceType) {
-
         return await this.prismaService.$transaction(async (tx) => {
             await tx.booking.update({
                 where: {
