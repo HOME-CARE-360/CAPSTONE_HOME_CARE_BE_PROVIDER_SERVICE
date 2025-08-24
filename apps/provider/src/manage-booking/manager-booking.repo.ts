@@ -209,6 +209,7 @@ export class ManageBookingsRepository {
 
 
     }
+
     async getListReportBooking(query: GetBookingReportsQueryType, userId: number) {
         const where: Prisma.BookingReportWhereInput = {
             reporterId: userId
@@ -277,6 +278,8 @@ export class ManageBookingsRepository {
                         create: body.services.map((item) => ({
                             serviceId: item.serviceId,
                             quantity: item.quantity,
+                            price: item.price
+
                         })),
                     }
 
@@ -300,6 +303,7 @@ export class ManageBookingsRepository {
                     create: rest.services.map((item) => ({
                         serviceId: item.serviceId,
                         quantity: item.quantity,
+                        price: item.price
                     })),
                 }
             }

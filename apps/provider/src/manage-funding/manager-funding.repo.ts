@@ -63,7 +63,7 @@ export class ManageFundingRepository {
 
         const [, data] = await Promise.all([this.prismaService.paymentTransaction.create({
             data: {
-                gateway: "EXTENAL_WALLET",
+                gateway: "EXTERNAL_WALLET",
                 status: PaymentTransactionStatus.PENDING,
                 userId,
                 transactionDate: new Date(),

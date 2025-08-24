@@ -45,7 +45,7 @@ export class DashboardRepository {
             _count: true,
         });
         const bookingMap: Record<BookingStatus, number> = {
-            PENDING: 0, CONFIRMED: 0, IN_PROGRESS: 0, COMPLETED: 0, CANCELLED: 0, WAIT_FOR_PAYMENT: 0,
+            PENDING: 0, CONFIRMED: 0, STAFF_COMPLETED: 0, COMPLETED: 0, CANCELLED: 0, WAIT_FOR_PAYMENT: 0,
         };
         bookingByStatus.forEach(b => (bookingMap[b.status] = b._count));
 
