@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { Prisma, WithdrawalStatus } from "@prisma/client"
+import { PaymentTransactionStatus, Prisma, WithdrawalStatus } from "@prisma/client"
 import { CreateWithdrawBodyType, GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model"
 import { PrismaService } from "libs/common/src/services/prisma.service"
 
@@ -60,14 +60,25 @@ export class ManageFundingRepository {
         return data
     }
     async createWithdraw(body: CreateWithdrawBodyType, userId: number) {
-        return await this.prismaService.withdrawalRequest.create({
+
+        const [, data] = await Promise.all([this.prismaService.paymentTransaction.create({
+            data: {
+                gateway: "EXTENAL_WALLET",
+                status: PaymentTransactionStatus.PENDING,
+                userId,
+                transactionDate: new Date(),
+                amountOut: body.amount
+            }
+        }), this.prismaService.withdrawalRequest.create({
             data: {
                 ...body,
                 userId,
                 status: WithdrawalStatus.PENDING,
                 createdAt: new Date()
             }
-        })
+        })])
+
+        return data
     }
 
 }
