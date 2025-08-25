@@ -22,3 +22,17 @@ export const ServiceRequestNotFoundException = new RpcException(
         ])
 );
 
+
+export const PreferredDateHasExpiredException = new RpcException(
+    new NotFoundException(
+        [
+            {
+                message: 'Error.PreferredDateHasExpired',
+                path: ['serviceRequestId'],
+            },
+        ])
+);
+
+
+
+

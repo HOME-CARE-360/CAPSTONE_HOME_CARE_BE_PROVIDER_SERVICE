@@ -4,7 +4,7 @@ import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetBoo
 import { ShareStaffRepository } from "libs/common/src/repositories/shared-staff.repo"
 import { SharedProviderRepository } from "libs/common/src/repositories/share-provider.repo"
 import { StaffNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-staff.error"
-import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
+import { PreferredDateHasExpiredException, ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
@@ -30,9 +30,18 @@ export class ManageBookingsService {
     }
     async assignStaffToBooking(body: AssignStaffToBookingBodySchemaType, providerId: number) {
         const [staff, serviceRequest] = await Promise.all([this.sharedStaffRepository.findUniqueStaffAndBelongToProvider(body.staffId, providerId), this.sharedProviderRepository.findUniqueServiceRequestBelongToProvider({ providerId, serviceRequestId: body.serviceRequestId })])
+
+
         if (!staff) throw StaffNotFoundOrNotBelongToProviderException
         if (!serviceRequest) throw ServiceRequestNotFoundException
         console.log("toi day r");
+        if (serviceRequest.preferredDate) {
+            const preferredDate = new Date(serviceRequest.preferredDate);
+            const now = new Date();
+            if (preferredDate < now) {
+                throw PreferredDateHasExpiredException
+            }
+        }
         return await this.manageBookingRepository.assignStaffToBooking(body)
     }
     async createProposed(body: CreateProposedServiceType, providerId: number) {
