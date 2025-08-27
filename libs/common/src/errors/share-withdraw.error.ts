@@ -17,3 +17,12 @@ export const InsufficientBalanceException = new RpcException(
         },
     ])
 );
+
+export const BankAccountNotConfiguredException = new RpcException(
+    new BadRequestException([
+        {
+            message: 'Error.BankAccountNotConfigured',
+            path: ['wallet'],
+        },
+    ])
+);

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ManageFundingRepository } from "./manager-funding.repo";
 import { CreateWithdrawBodyType, GetListWidthDrawQueryType } from "libs/common/src/request-response-type/with-draw/with-draw.model";
 import { SharedWidthDrawRepository } from "libs/common/src/repositories/share-withdraw.repo";
-import { InsufficientBalanceException, WithdrawRequestAlreadyProcessingException } from "libs/common/src/errors/share-withdraw.error";
+import { BankAccountNotConfiguredException, InsufficientBalanceException, WithdrawRequestAlreadyProcessingException } from "libs/common/src/errors/share-withdraw.error";
 
 @Injectable()
 export class ManageFundingService {
@@ -24,6 +24,9 @@ export class ManageFundingService {
         }
         if (wallet && (wallet.Wallet!.balance < body.amount)) {
             throw InsufficientBalanceException
+        }
+        if ((!wallet?.Wallet?.bankAccount) || (!wallet?.Wallet?.bankName) || (!wallet?.Wallet?.accountHolder)) {
+            throw BankAccountNotConfiguredException
         }
         return await this.manageFundingRepository.createWithdraw(body, userId)
     }
