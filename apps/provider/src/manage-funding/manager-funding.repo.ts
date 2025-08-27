@@ -60,25 +60,31 @@ export class ManageFundingRepository {
         return data
     }
     async createWithdraw(body: CreateWithdrawBodyType, userId: number) {
-
-        const [, data] = await Promise.all([this.prismaService.paymentTransaction.create({
-            data: {
-                gateway: "EXTERNAL_WALLET",
-                status: PaymentTransactionStatus.PENDING,
-                userId,
-                transactionDate: new Date(),
-                amountOut: body.amount
-            }
-        }), this.prismaService.withdrawalRequest.create({
+        const withdraw = await this.prismaService.withdrawalRequest.create({
             data: {
                 ...body,
                 userId,
                 status: WithdrawalStatus.PENDING,
-                createdAt: new Date()
-            }
-        })])
+                PaymentTransaction: {
+                    create: {
+                        gateway: 'EXTERNAL_WALLET',
+                        status: PaymentTransactionStatus.PENDING,
+                        userId,
+                        transactionDate: new Date(),
+                        amountOut: body.amount,
+                    },
+                },
+            },
+            select: {
+                id: true,
+                status: true,
+                PaymentTransaction: {
+                    select: { id: true, status: true, amountOut: true, transactionDate: true },
+                },
+            },
+        });
 
-        return data
+        return withdraw;
     }
 
 }
