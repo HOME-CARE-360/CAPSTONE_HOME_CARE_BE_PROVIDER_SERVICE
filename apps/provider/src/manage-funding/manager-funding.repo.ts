@@ -65,24 +65,27 @@ export class ManageFundingRepository {
                 ...body,
                 userId,
                 status: WithdrawalStatus.PENDING,
-                createdAt: new Date()
-            }
-        })
-        const transaction = await this.prismaService.paymentTransaction.create({
-            data: {
-                gateway: "EXTERNAL_WALLET",
-                status: PaymentTransactionStatus.PENDING,
-                userId,
-                withdrawalRequestId: withdraw.id,
-                transactionDate: new Date(),
-                amountOut: body.amount,
+                PaymentTransaction: {
+                    create: {
+                        gateway: 'EXTERNAL_WALLET',
+                        status: PaymentTransactionStatus.PENDING,
+                        userId,
+                        transactionDate: new Date(),
+                        amountOut: body.amount,
+                    },
+                },
+            },
 
-            }
-        })
+            select: {
+                id: true,
+                status: true,
+                PaymentTransaction: {
+                    select: { id: true, status: true, amountOut: true, transactionDate: true },
+                },
+            },
+        });
 
-        return {
-            ...transaction, ...withdraw
-        }
+        return withdraw;
     }
 
 }
