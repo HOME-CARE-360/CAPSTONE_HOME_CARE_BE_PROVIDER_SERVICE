@@ -49,6 +49,7 @@ export class ManageBookingsRepository {
                 orderBy: { [sortBy]: orderBy },
                 include: {
                     category: { select: { logo: true, name: true } },
+                    booking: true,
                     customer: {
                         select: {
                             address: true,
