@@ -1,28 +1,29 @@
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import { RpcException } from "@nestjs/microservices";
 
 export const WithdrawRequestAlreadyProcessingException = new RpcException(
-    new NotFoundException([
+    new ConflictException([
         {
-            message: 'Error.WithdrawRequestAlreadyProcessing',
+            message: 'A withdraw request is already being processed',
             path: ['withdraw'],
         },
-    ])
+    ]),
 );
+
 export const InsufficientBalanceException = new RpcException(
     new BadRequestException([
         {
-            message: 'Error.InsufficientBalance',
+            message: 'Insufficient balance',
             path: ['balance'],
         },
-    ])
+    ]),
 );
 
 export const BankAccountNotConfiguredException = new RpcException(
     new BadRequestException([
         {
-            message: 'Error.BankAccountNotConfigured',
+            message: 'Bank account is not configured',
             path: ['wallet'],
         },
-    ])
+    ]),
 );

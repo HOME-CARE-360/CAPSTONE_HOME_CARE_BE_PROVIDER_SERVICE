@@ -5,19 +5,19 @@ export function InvalidServiceItemsIdException(invalidIds: number[]) {
     return new RpcException(
         new BadRequestException([
             {
-                message: 'Error.InvalidServiceItemId',
+                message: `Invalid service item ID(s): ${invalidIds.join(", ")}`,
                 path: ['serviceItemsRequirements'],
                 meta: { invalidIds },
             },
-        ])
-    )
+        ]),
+    );
 }
+
 export const ServiceItemNotFoundException = new RpcException(
-    new NotFoundException(
-        [
-            {
-                message: 'Error.ServiceItemNotFoundOrNotBelongToProvider',
-                path: ['serviceItemId'],
-            },
-        ])
+    new NotFoundException([
+        {
+            message: 'Service item not found or does not belong to this provider',
+            path: ['serviceItemId'],
+        },
+    ]),
 );

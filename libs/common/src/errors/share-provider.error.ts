@@ -1,38 +1,38 @@
-import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException, BadRequestException } from "@nestjs/common";
 import { RpcException } from "@nestjs/microservices";
 
 export const ServiceProviderNotFoundException = new RpcException(
     new NotFoundException([
-        { message: 'Error.ServiceProviderNotFound', path: ['id'] },
-    ])
-);
-export const MissingProviderIdentifierException = new RpcException(
-    new ForbiddenException("Missing provider identifier")
-);
-export const ProviderNotVerifiedException = new RpcException(
-    new ForbiddenException("Your provider account is not verified")
-);
-export const ServiceRequestNotFoundException = new RpcException(
-    new NotFoundException(
-        [
-            {
-                message: 'Error.ServiceRequestNotFoundOrNotBelongToProvider',
-                path: ['serviceRequestId'],
-            },
-        ])
+        { message: 'Service provider not found', path: ['id'] },
+    ]),
 );
 
+export const MissingProviderIdentifierException = new RpcException(
+    new BadRequestException([
+        { message: 'Provider identifier is missing', path: ['providerId'] },
+    ]),
+);
+
+export const ProviderNotVerifiedException = new RpcException(
+    new ForbiddenException([
+        { message: 'Your provider account has not been verified', path: ['providerId'] },
+    ]),
+);
+
+export const ServiceRequestNotFoundException = new RpcException(
+    new NotFoundException([
+        {
+            message: 'Service request not found or does not belong to this provider',
+            path: ['serviceRequestId'],
+        },
+    ]),
+);
 
 export const PreferredDateHasExpiredException = new RpcException(
-    new NotFoundException(
-        [
-            {
-                message: 'Error.PreferredDateHasExpired',
-                path: ['serviceRequestId'],
-            },
-        ])
+    new BadRequestException([
+        {
+            message: 'Preferred date has expired',
+            path: ['serviceRequestId'],
+        },
+    ]),
 );
-
-
-
-

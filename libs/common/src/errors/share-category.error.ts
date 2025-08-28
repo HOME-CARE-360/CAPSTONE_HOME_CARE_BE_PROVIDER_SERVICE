@@ -5,10 +5,10 @@ export function InvalidCategoryIdException(invalidIds: number[]) {
     return new RpcException(
         new BadRequestException([
             {
-                message: 'Error.InvalidCategoryId',
+                message: `Invalid category ID(s): ${invalidIds.join(', ')}`,
                 path: ['categoryRequirements'],
                 meta: { invalidIds },
             },
-        ])
-    )
+        ]),
+    );
 }
