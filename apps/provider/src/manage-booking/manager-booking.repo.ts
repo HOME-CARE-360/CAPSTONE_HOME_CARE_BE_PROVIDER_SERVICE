@@ -311,4 +311,50 @@ export class ManageBookingsRepository {
         })
 
     }
+    async getReportDetail(reportId: number, userId: number) {
+        const data = await this.prismaService.bookingReport.findUnique({
+            where: {
+                id: reportId,
+                reporterId: userId
+            },
+            include: {
+                Booking: {
+                    include: {
+                        Proposal: {
+                            include: {
+                                ProposalItem: true
+                            }
+                        }
+                    }
+                },
+                CustomerProfile: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                phone: true,
+                                email: true,
+                                avatar: true,
+
+                            }
+                        }
+                    }
+                },
+                ServiceProvider: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                phone: true,
+                                email: true,
+                                avatar: true,
+                            }
+                        }
+                    }
+                }
+            },
+        })
+
+        return data
+    }
 }

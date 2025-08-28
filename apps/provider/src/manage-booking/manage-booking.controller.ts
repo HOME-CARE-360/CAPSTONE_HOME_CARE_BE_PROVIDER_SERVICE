@@ -69,5 +69,9 @@ export class ManageBookingsController {
   async getListCancelBooking(@Payload() { query, userId }: { query: GetBookingReportsQueryType, userId: number }) {
     return await this.manageBookingService.getListReportBooking(query, userId)
   }
+  @MessagePattern({ cmd: "get-report-detail" })
+  async getReportDetail(@Payload() { reportId, userId }: { reportId: number, userId: number }) {
+    return await this.manageBookingService.getReportDetail(reportId, userId)
+  }
 
 }

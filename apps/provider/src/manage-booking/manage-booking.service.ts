@@ -101,4 +101,7 @@ export class ManageBookingsService {
 
         return await this.manageBookingRepository.getListReportBooking(query, userId)
     }
+    async getReportDetail(reportId: number, userId: number) {
+        return await this.manageBookingRepository.getReportDetail(reportId, userId)
+    }
 }
