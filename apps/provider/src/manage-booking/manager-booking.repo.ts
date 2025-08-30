@@ -177,14 +177,6 @@ export class ManageBookingsRepository {
         };
     }
     async reportAndCancelBooking(body: CreateBookingReportBodyType, userId: number) {
-        await this.prismaService.booking.update({
-            where: {
-                id: body.bookingId
-            },
-            data: {
-                status: BookingStatus.CANCELLED
-            }
-        })
         return await this.prismaService.bookingReport.create({
             data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
         })

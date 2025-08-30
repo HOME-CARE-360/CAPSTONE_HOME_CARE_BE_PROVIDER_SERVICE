@@ -48,7 +48,6 @@ export class ManageBookingsController {
       message: "Cancel service request successfully"
     }
   }
-
   @MessagePattern({ cmd: "edit-proposed" })
   async editProposed(@Payload() { data, providerID }: { data: EditProposedServiceType, providerID: number }) {
     await this.manageBookingService.editProposed(data, providerID)
