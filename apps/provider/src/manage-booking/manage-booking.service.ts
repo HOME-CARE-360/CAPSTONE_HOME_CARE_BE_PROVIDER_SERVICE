@@ -8,7 +8,7 @@ import { PreferredDateHasExpiredException, ServiceRequestNotFoundException } fro
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
-import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException, BookingReportNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
+import { BookingNotFoundException, BookingNotFoundOrNotBelongToProviderException, BookingReportAlreadyExistsException, BookingReportNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-booking.error"
 import { InvalidServiceIdException } from "libs/common/src/errors/share-service.error"
 import { SharedProposalRepository } from "libs/common/src/repositories/shared-proposed.repo"
 import { ProposalAlreadyExistsException, ProposalNotFoundException } from "libs/common/src/errors/shared-proposal.error"
@@ -91,7 +91,8 @@ export class ManageBookingsService {
     async cancelAndReportBooking(body: CreateBookingReportBodyType, userId: number) {
         const booking = await this.bookingRepository.findUnique({ id: body.bookingId })
         if (!booking) throw BookingNotFoundOrNotBelongToProviderException
-        return await this.manageBookingRepository.reportAndCancelBooking(body, userId)
+        if (booking.BookingReport.length > 0) throw BookingReportAlreadyExistsException
+        return await this.manageBookingRepository.reportAndCancelBooking(body, userId, booking)
     }
     async updateReportBooking(body: UpdateBookingReportBodyType, userId: number) {
         if (!await this.bookingRepository.findUniqueReportBelongToProvider(body.id, userId)) throw BookingReportNotFoundOrNotBelongToProviderException

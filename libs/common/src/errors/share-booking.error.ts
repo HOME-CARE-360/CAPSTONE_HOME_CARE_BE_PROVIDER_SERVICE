@@ -24,6 +24,14 @@ export const BookingReportNotFoundOrNotBelongToProviderException = new RpcExcept
         },
     ]),
 );
+export const BookingReportAlreadyExistsException = new RpcException(
+    new NotFoundException([
+        {
+            message: 'Booking report already exists',
+            path: ['bookingId'],
+        },
+    ]),
+);
 
 export const ServiceRequestNotFoundOrNotBelongToProviderException = new RpcException(
     new NotFoundException([

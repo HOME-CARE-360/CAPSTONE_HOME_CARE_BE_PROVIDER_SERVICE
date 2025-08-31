@@ -9,6 +9,8 @@ export class SharedBookingRepository {
         return await this.prismaService.booking.findUnique({
             where: {
                 id
+            }, include: {
+                BookingReport: true,
             }
         })
     }
