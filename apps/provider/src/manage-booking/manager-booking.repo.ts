@@ -254,19 +254,32 @@ export class ManageBookingsRepository {
     }
     async cancelRequestService(serviceRequestId: number) {
         return await this.prismaService.$transaction(async (tx) => {
-            const serviceRequest = await tx.serviceRequest.update({
+            const [sys, serviceRequest] = await Promise.all([tx.systemConfig.findUnique({
+                where: { key: "BOOKING_DEPOSIT" },
+            }),
+
+            tx.serviceRequest.update({
                 where: { id: serviceRequestId },
                 data: { status: RequestStatus.CANCELLED },
-            });
+            })
+            ])
+            const [wallet, booking] = await Promise.all([
+                tx.wallet.update({
+                    where: { userId: serviceRequest.customerId },
+                    data: {
+                        balance: { increment: Number(sys!.value) },
+                    },
+                }),
+                tx.booking.update({
+                    where: { serviceRequestId },
+                    data: { status: BookingStatus.CANCELLED },
+                }),
+            ]);
 
-            const booking = await tx.booking.update({
-                where: { serviceRequestId },
-                data: { status: BookingStatus.CANCELLED },
-            });
-
-            return { serviceRequest, booking };
+            return { serviceRequest, booking, wallet };
         });
     }
+
     async createProposed(body: CreateProposedServiceType) {
         return await this.prismaService.$transaction(async (tx) => {
             await tx.booking.update({
@@ -288,7 +301,6 @@ export class ManageBookingsRepository {
                     status: ProposalStatus.PENDING,
                     notes: body.notes,
                     bookingId: body.bookingId,
-
                     ProposalItem: {
                         create: body.services.map((item) => ({
                             serviceId: item.serviceId,

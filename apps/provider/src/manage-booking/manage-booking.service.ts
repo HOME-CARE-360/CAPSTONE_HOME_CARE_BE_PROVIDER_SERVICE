@@ -4,7 +4,7 @@ import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetBoo
 import { ShareStaffRepository } from "libs/common/src/repositories/shared-staff.repo"
 import { SharedProviderRepository } from "libs/common/src/repositories/share-provider.repo"
 import { StaffNotFoundOrNotBelongToProviderException } from "libs/common/src/errors/share-staff.error"
-import { PreferredDateHasExpiredException, ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
+import { BookingNotPendingException, PreferredDateHasExpiredException, ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { CreateProposedServiceType, EditProposedServiceType } from "libs/common/src/request-response-type/proposed/proposed.model"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { SharedServicesRepository } from "libs/common/src/repositories/shared-service.repo"
@@ -19,8 +19,12 @@ export class ManageBookingsService {
 
     }
     async cancelRequest(serviceRequestId: number, providerId: number) {
-        if (!await this.bookingRepository.findUniqueServiceRequest({ id: serviceRequestId, providerId })) {
+        const booking = await this.bookingRepository.findUniqueServiceRequest({ id: serviceRequestId, providerId })
+        if (!booking) {
             throw ServiceRequestNotFoundException
+        }
+        if (booking.status !== "PENDING") {
+            throw BookingNotPendingException(booking.status)
         }
         await this.manageBookingRepository.cancelRequestService(serviceRequestId)
     }
@@ -34,7 +38,6 @@ export class ManageBookingsService {
 
         if (!staff) throw StaffNotFoundOrNotBelongToProviderException
         if (!serviceRequest) throw ServiceRequestNotFoundException
-        console.log("toi day r");
         if (serviceRequest.preferredDate) {
             const preferredDate = new Date(serviceRequest.preferredDate);
             const now = new Date();

@@ -27,6 +27,11 @@ export const ServiceRequestNotFoundException = new RpcException(
         },
     ]),
 );
+export const BookingNotPendingException = (current: string) => new RpcException(
+    new BadRequestException([{
+        message: `Booking must be PENDING, but got ${current}`,
+    }])
+)
 
 export const PreferredDateHasExpiredException = new RpcException(
     new BadRequestException([
