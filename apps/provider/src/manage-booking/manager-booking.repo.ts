@@ -177,9 +177,24 @@ export class ManageBookingsRepository {
         };
     }
     async reportAndCancelBooking(body: CreateBookingReportBodyType, userId: number) {
-        return await this.prismaService.bookingReport.create({
-            data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
+        const booking = await this.prismaService.booking.findFirst({
+            where: {
+                id: body.bookingId,
+                NOT: {
+                    status: BookingStatus.COMPLETED,
+                },
+            },
         })
+
+        const [, report] = await Promise.all([this.prismaService.booking.update({
+            where: { id: booking!.id },
+            data: {
+                status: BookingStatus.CANCELLED,
+            },
+        }), this.prismaService.bookingReport.create({
+            data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
+        })])
+        return report
     }
     async updateReportBooking(body: UpdateBookingReportBodyType) {
         const { id, ...rest } = body
