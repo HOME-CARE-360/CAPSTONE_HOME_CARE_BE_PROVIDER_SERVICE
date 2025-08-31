@@ -92,6 +92,7 @@ export class ManageBookingsService {
         const booking = await this.bookingRepository.findUnique({ id: body.bookingId })
         if (!booking) throw BookingNotFoundOrNotBelongToProviderException
         if (booking.BookingReport.length > 0) throw BookingReportAlreadyExistsException
+        // if(booking.status===BookingStatus.)
         return await this.manageBookingRepository.reportAndCancelBooking(body, userId, booking)
     }
     async updateReportBooking(body: UpdateBookingReportBodyType, userId: number) {

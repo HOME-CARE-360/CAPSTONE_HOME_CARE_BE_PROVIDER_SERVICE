@@ -182,7 +182,7 @@ export class ManageBookingsRepository {
         }
     }>) {
 
-        if (booking) {
+        if (booking && booking.status !== BookingStatus.COMPLETED && booking.status !== BookingStatus.STAFF_COMPLETED) {
             const [, report] = await Promise.all([this.prismaService.booking.update({
                 where: { id: booking.id },
                 data: {
