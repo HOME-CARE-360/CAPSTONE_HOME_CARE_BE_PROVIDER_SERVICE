@@ -24,7 +24,7 @@ export class ManageStaffRepository {
                     booking: {
                         every: {
                             status: {
-                                in: ['COMPLETED', 'CANCELLED'],
+                                in: ['COMPLETED', 'CANCELLED', "STAFF_COMPLETED"],
                             },
                         }
 
