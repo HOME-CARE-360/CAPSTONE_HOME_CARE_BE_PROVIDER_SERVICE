@@ -185,16 +185,26 @@ export class ManageBookingsRepository {
                 },
             },
         })
+        if (booking) {
+            const [, report] = await Promise.all([this.prismaService.booking.update({
+                where: { id: booking.id },
+                data: {
+                    status: BookingStatus.CANCELLED,
+                },
+            }), this.prismaService.bookingReport.create({
+                data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
+            })])
+            return report
+        } else {
+            return await this.prismaService.bookingReport.create({
+                data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
+            })
+        }
 
-        const [, report] = await Promise.all([this.prismaService.booking.update({
-            where: { id: booking!.id },
-            data: {
-                status: BookingStatus.CANCELLED,
-            },
-        }), this.prismaService.bookingReport.create({
-            data: { ...body, status: ReportStatus.PENDING, reporterId: userId }
-        })])
-        return report
+
+
+
+
     }
     async updateReportBooking(body: UpdateBookingReportBodyType) {
         const { id, ...rest } = body
