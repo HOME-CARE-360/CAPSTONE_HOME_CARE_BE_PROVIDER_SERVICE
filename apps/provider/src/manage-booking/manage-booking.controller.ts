@@ -69,8 +69,8 @@ export class ManageBookingsController {
     return await this.manageBookingService.getListReportBooking(query, userId)
   }
   @MessagePattern({ cmd: "get-report-detail" })
-  async getReportDetail(@Payload() { reportId, userId }: { reportId: number, userId: number }) {
-    return await this.manageBookingService.getReportDetail(reportId, userId)
+  async getReportDetail(@Payload() { reportId, userId, role }: { reportId: number, userId: number, role: string }) {
+    return await this.manageBookingService.getReportDetail(reportId, userId, role)
   }
 
 }

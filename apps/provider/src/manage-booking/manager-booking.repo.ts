@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { BookingStatus, PaymentTransactionStatus, Prisma, ProposalStatus, ReportStatus, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
+import { RoleName } from "libs/common/src/constants/role.constant"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
 import { AssignStaffToBookingBodySchemaType, CreateBookingReportBodyType, GetBookingReportsQueryType, UpdateBookingReportBodyType, } from "libs/common/src/request-response-type/bookings/booking.model"
@@ -354,9 +355,60 @@ export class ManageBookingsRepository {
         })
 
     }
-    async getReportDetail(reportId: number, userId: number) {
+    async getReportDetail(reportId: number, userId: number, role: string) {
+        if (role === RoleName.Customer) {
+            return await this.prismaService.bookingReport.findUnique({
+                where: {
+                    id: reportId,
+                    reporterId: userId
+                },
+                include: {
 
-        const data = await this.prismaService.bookingReport.findUnique({
+                    Booking: {
+                        include: {
+                            serviceRequest: {
+                                include: {
+                                    PaymentTransaction: true
+                                }
+                            },
+                            transaction: true,
+                            Proposal: {
+                                include: {
+                                    ProposalItem: true
+                                }
+                            }
+                        }
+                    },
+                    CustomerProfile: {
+                        include: {
+                            user: {
+                                select: {
+                                    name: true,
+                                    phone: true,
+                                    email: true,
+                                    avatar: true,
+
+                                }
+                            }
+                        }
+                    },
+                    ServiceProvider: {
+                        include: {
+                            user: {
+                                select: {
+                                    name: true,
+                                    phone: true,
+                                    email: true,
+                                    avatar: true,
+                                }
+                            }
+                        }
+                    }
+                },
+            })
+        }
+
+        return await this.prismaService.bookingReport.findUnique({
             where: {
                 id: reportId,
                 reporterId: userId
@@ -365,12 +417,8 @@ export class ManageBookingsRepository {
 
                 Booking: {
                     include: {
-                        serviceRequest: {
-                            include: {
-                                PaymentTransaction: true
-                            }
-                        },
-                        transaction: true,
+                        serviceRequest: true,
+
                         Proposal: {
                             include: {
                                 ProposalItem: true
@@ -405,7 +453,6 @@ export class ManageBookingsRepository {
                 }
             },
         })
-        return data
 
     }
 }
