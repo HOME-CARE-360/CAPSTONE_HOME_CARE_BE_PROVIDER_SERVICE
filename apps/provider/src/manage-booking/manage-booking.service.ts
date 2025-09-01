@@ -26,7 +26,7 @@ export class ManageBookingsService {
         if (booking.status !== "PENDING") {
             throw BookingNotPendingException(booking.status)
         }
-        await this.manageBookingRepository.cancelRequestService(serviceRequestId)
+        return await this.manageBookingRepository.cancelRequestService(serviceRequestId)
     }
     async getListServiceRequest(data: GetServicesRequestQueryType, providerId: number) {
 

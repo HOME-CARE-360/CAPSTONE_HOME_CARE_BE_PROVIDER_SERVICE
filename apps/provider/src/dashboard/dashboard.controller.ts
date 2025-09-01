@@ -17,7 +17,6 @@ export class DashboardController {
     //     return this.dashboardService.getProviderStats(providerId, params);
     // }
 
-    // MessagePattern (nếu bạn cũng expose qua microservices)
     @MessagePattern({ cmd: 'provider.stats' })
     async getStatsMsg(@Payload() { providerId, params }: { providerId: number, params: GetProviderStatsQueryType }) {
         {

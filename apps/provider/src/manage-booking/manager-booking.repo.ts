@@ -260,12 +260,18 @@ export class ManageBookingsRepository {
 
             tx.serviceRequest.update({
                 where: { id: serviceRequestId },
+
                 data: { status: RequestStatus.CANCELLED },
+                include: {
+                    customer: true
+                }
             })
             ])
             const [wallet, booking] = await Promise.all([
                 tx.wallet.update({
-                    where: { userId: serviceRequest.customerId },
+                    where: {
+                        id: serviceRequest.customer.userId
+                    },
                     data: {
                         balance: { increment: Number(sys!.value) },
                     },
