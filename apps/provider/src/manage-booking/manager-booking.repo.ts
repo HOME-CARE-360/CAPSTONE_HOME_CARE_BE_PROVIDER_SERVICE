@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common"
-import { BookingStatus, Prisma, ProposalStatus, ReportStatus, RequestStatus } from "@prisma/client"
+import { BookingStatus, PaymentTransactionStatus, Prisma, ProposalStatus, ReportStatus, RequestStatus } from "@prisma/client"
 import { OrderByType, SortByServiceRequestType } from "libs/common/src/constants/others.constant"
 import { ServiceRequestNotFoundException } from "libs/common/src/errors/share-provider.error"
 import { SharedBookingRepository } from "libs/common/src/repositories/shared-booking.repo"
@@ -270,7 +270,7 @@ export class ManageBookingsRepository {
             const [wallet, booking] = await Promise.all([
                 tx.wallet.update({
                     where: {
-                        id: serviceRequest.customer.userId
+                        userId: serviceRequest.customer.userId
                     },
                     data: {
                         balance: { increment: Number(sys!.value) },
@@ -280,6 +280,17 @@ export class ManageBookingsRepository {
                     where: { serviceRequestId },
                     data: { status: BookingStatus.CANCELLED },
                 }),
+                tx.paymentTransaction.create({
+                    data: {
+                        gateway: 'INTERNAL_WALLET',
+                        status: PaymentTransactionStatus.REFUNDED,
+                        userId: serviceRequest.customer.userId,
+                        transactionDate: new Date(),
+                        amountIn: Number(sys!.value),
+                        referenceNumber: 'REFUND_SR',
+                        transactionContent: 'Hoàn tiền đặt cọc dịch vụ',
+                    }
+                })
             ]);
 
             return { serviceRequest, booking, wallet };
