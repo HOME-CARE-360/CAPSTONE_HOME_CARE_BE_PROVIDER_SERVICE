@@ -355,14 +355,22 @@ export class ManageBookingsRepository {
 
     }
     async getReportDetail(reportId: number, userId: number) {
+
         const data = await this.prismaService.bookingReport.findUnique({
             where: {
                 id: reportId,
                 reporterId: userId
             },
             include: {
+
                 Booking: {
                     include: {
+                        serviceRequest: {
+                            include: {
+                                PaymentTransaction: true
+                            }
+                        },
+                        transaction: true,
                         Proposal: {
                             include: {
                                 ProposalItem: true
@@ -397,7 +405,7 @@ export class ManageBookingsRepository {
                 }
             },
         })
-
         return data
+
     }
 }
