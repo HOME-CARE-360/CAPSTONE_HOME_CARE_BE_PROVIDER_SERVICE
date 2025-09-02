@@ -84,7 +84,9 @@ export const UpdateServiceBodySchema = ServiceBodyPrototype.partial()
     .merge(ServiceSchema.pick({
         id: true,
     }))
-    .strict()
+    .strict().extend({
+        unit: z.enum([Unit.PER_HOUR, Unit.PER_HOUR, Unit.PER_JOB, Unit.PER_SQUARE_METER]),
+    })
     .refine(
         (data) =>
             data.virtualPrice === undefined ||
