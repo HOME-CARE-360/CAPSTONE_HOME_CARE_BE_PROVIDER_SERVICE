@@ -49,6 +49,7 @@ export class ManageBookingsRepository {
                 where,
                 orderBy: { [sortBy]: orderBy },
                 include: {
+
                     category: { select: { logo: true, name: true } },
                     booking: true,
                     customer: {
@@ -374,7 +375,11 @@ export class ManageBookingsRepository {
                             transaction: true,
                             Proposal: {
                                 include: {
-                                    ProposalItem: true
+                                    ProposalItem: {
+                                        include: {
+                                            Service: true
+                                        }
+                                    }
                                 }
                             }
                         }
