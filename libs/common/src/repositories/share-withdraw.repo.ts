@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../services/prisma.service";
-import { WithdrawalStatus } from "@prisma/client";
 
 @Injectable()
 export class SharedWidthDrawRepository {
@@ -22,8 +21,7 @@ export class SharedWidthDrawRepository {
                 userId,
                 status: {
                     not: {
-
-                        equals: WithdrawalStatus.COMPLETED
+                        in: ["COMPLETED", "APPROVED", "CANCELLED", "REJECTED"]
                     }
                 }
             }
